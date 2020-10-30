@@ -1,11 +1,26 @@
 #include <iostream>
 #include "parser.h"
 #include "ppm.h"
+#include "./Objects/Vec3.hpp"
+#include "./Objects/Triangle.hpp"
+#include "./Objects/Sphere.hpp"
+#include "./Objects/Ray.hpp"
+#include "./Objects/Color.hpp"
+#include "./Objects/Camera.hpp"
+
 
 typedef unsigned char RGB[3];
 
-int main(int argc, char* argv[])
-{
+using namespace std;
+int main(int argc, char* argv[]){
+
+
+}
+
+
+
+//backup
+/*
     // Sample usage for reading an XML scene file
     parser::Scene scene;
 
@@ -49,4 +64,6 @@ int main(int argc, char* argv[])
 
     write_ppm("test.ppm", image, width, height);
 
-}
+*/
+
+
