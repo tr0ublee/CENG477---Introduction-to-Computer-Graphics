@@ -1,12 +1,11 @@
 #include <iostream>
 #include "parser.h"
 #include "ppm.h"
-#include "./Objects/Vec3.hpp"
 #include "./Objects/Triangle.hpp"
 #include "./Objects/Sphere.hpp"
 #include "./Objects/Ray.hpp"
-#include "./Objects/Color.hpp"
 #include "./Objects/Camera.hpp"
+#include "./Objects/Mesh.hpp"
 
 
 typedef unsigned char RGB[3];

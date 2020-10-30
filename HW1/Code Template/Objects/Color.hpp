@@ -1,3 +1,4 @@
+#pragma once
 class Color {
 
     public:
@@ -5,24 +6,8 @@ class Color {
         int g;
         int b;
 
-        Color(){
-            r = 0;
-            g = 0;
-            b = 0;
-        }
-        
-        Color(int red, int green, int blue) {
-            r = red;
-            g = green;
-            b = blue;
-        }
-        
-        Color(Color &param) {
-            r = param.r;
-            g = param.g;
-            b = param.b;
-        }
-        ~Color() {
-
-        }
+        Color();
+        Color(int red, int green, int blue);
+        Color(Color &param);
+        ~Color();
 };

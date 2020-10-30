@@ -19,16 +19,12 @@ class Scene{
     std::vector<Material*> materials;
     std::vector<std::vector<double>> vertexData;
     std::vector<Mesh*> meshes;
-    std::vector<Triangle*> meshes;
-    std::vector<Sphere*> meshes;
+    std::vector<Triangle*> triangles;
+    std::vector<Sphere*> spheres;
 
-    Scene(){
+    Scene();
 
-    }
-
-    ~Scene(){
-        
-    }
+    ~Scene();
 
 
 

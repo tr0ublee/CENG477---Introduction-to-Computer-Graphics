@@ -1,3 +1,6 @@
+// #pragma once
+#ifndef VEC3_H
+#define VEC3_H
 #include <iostream>
 #include <math.h>       /* sqrt */
 #define ABS(a) ((a)>0?(a):-1*(a))
@@ -25,3 +28,5 @@ class Vec3{
         double getLengthSquared();
         double getLength();
 };
+
+#endif
