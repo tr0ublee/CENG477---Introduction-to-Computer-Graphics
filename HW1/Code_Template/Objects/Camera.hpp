@@ -6,15 +6,15 @@
 class Camera {
 
     public:
-        Vec3* pos;
-        Vec3* gaze;
-        Vec3* v;
-        Vec3* u;
-        double l;
-        double r;
-        double b;
-        double t;
-        double d;
+        Vec3* pos;      // position
+        Vec3* gaze;     // -w
+        Vec3* v;        // up vector
+        Vec3* u;        // v x w
+        double l;       // left
+        double r;       // right
+        double b;       // bottom
+        double t;       // top
+        double d;       // distance
         long imageWidth;
         long imageHeight;
         std::string imageName;

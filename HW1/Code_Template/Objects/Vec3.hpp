@@ -38,16 +38,14 @@ class Vec3{
             double x = this -> x + b.x;
             double y = this -> y + b.y;
             double z = this -> z + b.z;
-            Vec3 returned = Vec3(x, y, z);
-            return returned; 
+            return Vec3(x, y, z);
         }
 
         inline Vec3 operator-(const Vec3 &b) {
             double x = this -> x - b.x;
             double y = this -> y - b.y;
             double z = this -> z - b.z;
-            Vec3 returned = Vec3(x, y, z);
-            return Vec3(x,y,z);
+            return Vec3(x, y, z);
         }
         inline Vec3 operator*(const double c) {
             double x = this -> x * c;
@@ -62,10 +60,10 @@ class Vec3{
             return Vec3(x, y, z);
         }
         inline double dot(const Vec3 &b) {
-            return this -> x* b.x + this -> y * b.y + this -> z * b.z;
+            return this -> x * b.x + this -> y * b.y + this -> z * b.z;
         }
         inline bool operator==(const Vec3 &b) {
-            double e = 0.000000001;
+            double e = 0.0001;
             if ((ABS((this -> x - b.x)) < e) && (ABS((this -> y - b.y)) < e) && (ABS((this -> z - b.z)) < e)) { 
                 return true;
             }

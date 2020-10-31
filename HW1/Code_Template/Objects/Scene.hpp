@@ -20,6 +20,7 @@ class Scene{
         Color* background;
         float shadowRayEpsilon;
         int maxRecursionDepth;
+        Vec3* ambientLight;
         size_t numOfCameras;
         size_t numOfLights;
         size_t numOfMaterials;
@@ -28,7 +29,6 @@ class Scene{
         size_t numOfTriangles;
         size_t numOfSpheres;
         std::vector<Camera*> cameras;
-        Vec3* ambientLight;
         std::vector<PointLight*> lights;
         std::vector<Material*> materials;
         std::vector<Vec3*> vertexData;
