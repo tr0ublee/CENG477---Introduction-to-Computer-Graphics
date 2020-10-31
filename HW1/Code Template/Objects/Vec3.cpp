@@ -55,10 +55,11 @@ bool Vec3::operator==(const Vec3 &b) {
     return false;
 } 
 
-void Vec3::operator=(const Vec3 &b) {
+Vec3& Vec3::operator=(const Vec3 &b) {
     this -> x = b.x;
     this -> y = b.y;
     this -> z = b.z;
+    return *this;
 } 
 Vec3 Vec3::cross(Vec3 &a, Vec3 &b) {
     Vec3 tmp;
