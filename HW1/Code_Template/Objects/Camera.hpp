@@ -1,4 +1,7 @@
+#ifndef CAMERA_HPP
+#define CAMERA_HPP
 #include "Vec3.hpp"
+#include "../parser.h"
 
 class Camera {
 
@@ -18,6 +21,8 @@ class Camera {
 
         Camera(Vec3 &posX, Vec3 &gazeX, Vec3 &vX, Vec3 &uX, double l, double r, 
                 double b, double t, double d, long width, long height, const std::string &name);
+        Camera(parser::Camera cameraStruct);
         ~Camera();
 
 };
+#endif

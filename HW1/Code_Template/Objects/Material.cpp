@@ -1,11 +1,11 @@
 #include "Material.hpp"
 
 
-Material::Material(Vec3 &a, Vec3 &b, Vec3 &c, Vec3 &d, int phong) {
-    ambientReflectance = new Vec3(a);
-    diffuseReflectance = new Vec3(b);
-    specularReflectance = new Vec3(c);
-    mirrorReflectance = new Vec3(d);
+Material::Material(Vec3 &ambient, Vec3 &diff, Vec3 &spec, Vec3 &mirr, int phong) {
+    ambientReflectance = new Vec3(ambient);
+    diffuseReflectance = new Vec3(diff);
+    specularReflectance = new Vec3(spec);
+    mirrorReflectance = new Vec3(mirr);
     phongExponent = phong;
 }
 Material::Material(const Material &a) {

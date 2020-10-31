@@ -10,7 +10,7 @@ class Material{
         Vec3* mirrorReflectance;
         int phongExponent;
 
-        Material(Vec3 &a, Vec3 &b, Vec3 &c, Vec3 &d, int phong);
+        Material(Vec3 &ambient, Vec3 &diff, Vec3 &spec, Vec3 &mirr, int phong);
         Material(const Material &a);
         ~Material();
 };

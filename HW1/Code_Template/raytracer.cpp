@@ -6,17 +6,27 @@
 #include "./Objects/Ray.hpp"
 #include "./Objects/Camera.hpp"
 #include "./Objects/Mesh.hpp"
+#include "./Objects/Scene.hpp"
 
 
 typedef unsigned char RGB[3];
 
 using namespace std;
 int main(int argc, char* argv[]){
+    
+    if (argc < 2) {
+        std::cerr << "No XML provided" << endl;
+        return -1;
+    }
 
+    cout << argv[1]<<endl;
+    parser::Scene scene;
+    scene.loadFromXml(argv[1]);
+    cout << scene.shadow_ray_epsilon << endl;
+    Scene ourScene(scene);
+    cout << ourScene.shadowRayEpsilon<<endl;
 
 }
-
-
 
 //backup
 /*
