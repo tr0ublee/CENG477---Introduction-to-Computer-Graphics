@@ -1,7 +1,7 @@
 #include "Sphere.hpp"
 #include <iostream>
 
-int Sphere::intersectRay(Ray* ray) {
+float Sphere::intersectRay(Ray* ray) {
 	float A,B,C; //constants for the quadratic function	
 	float delta;
     float t,t1,t2;
@@ -22,7 +22,7 @@ int Sphere::intersectRay(Ray* ray) {
 	delta = B * B - 4 * A * C;
 	
 	if (delta < 0.0f) {
-        return -1;
+        return -1.0;
     }
 
 	else if (delta - 0.0f < 0.000001) {

@@ -11,7 +11,7 @@ class Sphere {
         Material* material;
         Vec3* center;
         float r;
-        int intersectRay(Ray* ray);
+        float intersectRay(Ray* ray);
         Sphere(Material* material, Vec3* center, float r);
         ~Sphere();
 };

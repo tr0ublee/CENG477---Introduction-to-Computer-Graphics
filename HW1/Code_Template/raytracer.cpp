@@ -7,6 +7,7 @@
 #include "./Objects/Camera.hpp"
 #include "./Objects/Mesh.hpp"
 #include "./Objects/Scene.hpp"
+#include "stdio.h"
 #include <limits>
 
 #define INF std::numeric_limits<float>::max();
@@ -14,6 +15,9 @@ typedef unsigned char RGB[3];
 typedef unsigned char* Image;
 using namespace std;
 
+void printVec(Vec3 a) {
+	printf("X:%lf Y:%lf Z:%lf \n", a.x, a.y, a.z);
+}
 void initScene(const char* path, Scene** scene) {
    parser::Scene* tmpScene = new parser::Scene();
    tmpScene->loadFromXml(path);
@@ -56,24 +60,15 @@ int main(int argc, char* argv[]){
         for (size_t x = 0; x< imageWidth; x++) {
             for (size_t y = 0; y < imageHeight; y++) {
                 Ray* ray = new Ray(x, y, currentCam);
-                // std::cout <<"i: "<< x <<" j: "<< y <<" ";
-                // std::cout<<"X: "<<ray->e->x << " Y: "<<ray->e->y << " Z: "<<ray->e->z;
-                // std::cout<<"X: "<<ray->d->x << " Y: "<<ray->d->y << " Z: "<<ray->d->z << std::endl;
-                // if(colorIndex==30){
-                //     colorIndex++;
-                //     colorIndex--;
-                // }
-
                 Sphere* closestSphere = nullptr;
                 float tMin = INF;
                 size_t numOfSpheres = scene -> numOfSpheres;
                 for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
                     Sphere* currentSphere = scene -> spheres[sphereIndex];
                     float t = currentSphere -> intersectRay(ray);
-                    // cout << t << endl;
-                    if (FLOAT_EQ(t, 1.0) || FLOAT_G(t, 1.0)) {
+                    if (t > 1.0 || FLOAT_EQ(t,1.0f)) {
                         // t >= 1.0
-                        if (FLOAT_G(tMin, t)) {
+                        if (tMin > t) {
                             // t < tMin
                             tMin = t;
                             closestSphere = currentSphere;
@@ -86,6 +81,8 @@ int main(int argc, char* argv[]){
                         // diffuse
                         PointLight* currentLight = scene -> lights[lightIndex];
                         Vec3 intersectionPoint = Vec3(*(ray -> e) + *(ray -> d) * tMin); 
+                        // printf("i: %d j: %d \n",x,y);
+				        // printVec(intersectionPoint);
                         Vec3 wi = *currentLight -> pos - intersectionPoint;
                         Vec3 normal = intersectionPoint - *(closestSphere ->center);
                         wi.normalize();
