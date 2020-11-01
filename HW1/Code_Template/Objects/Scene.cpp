@@ -68,7 +68,7 @@ Scene::Scene(parser::Scene &sceneStruct) {
         parser::Sphere current = sceneStruct.spheres[i];
         int materialIndex = current.material_id-1;
         int vertexIndex = current.center_vertex_id-1;
-        double radius = current.radius; 
+        float radius = current.radius; 
         Sphere* pushed = new Sphere(materials[materialIndex], vertexData[vertexIndex], radius);
         spheres.push_back(pushed);
     }

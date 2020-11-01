@@ -10,8 +10,8 @@ class Sphere {
 
         Material* material;
         Vec3* center;
-        double r;
+        float r;
         int intersectRay(Ray* ray);
-        Sphere(Material* material, Vec3* center, double r);
+        Sphere(Material* material, Vec3* center, float r);
         ~Sphere();
 };

@@ -11,9 +11,9 @@
 class Vec3{
 
     public:
-        double x;
-        double y;
-        double z;
+        float x;
+        float y;
+        float z;
 
         Vec3() {
             this -> x = 0;
@@ -21,7 +21,7 @@ class Vec3{
             this -> z = 0;
         }
 
-        Vec3(double x, double y, double z) {
+        Vec3(float x, float y, float z) {
             this -> x = x;
             this -> y = y;
             this -> z = z;
@@ -38,35 +38,35 @@ class Vec3{
         }
 
         inline Vec3 operator+(const Vec3 &b) {
-            double x = this -> x + b.x;
-            double y = this -> y + b.y;
-            double z = this -> z + b.z;
+            float x = this -> x + b.x;
+            float y = this -> y + b.y;
+            float z = this -> z + b.z;
             return Vec3(x, y, z);
         }
 
         inline Vec3 operator-(const Vec3 &b) {
-            double x = this -> x - b.x;
-            double y = this -> y - b.y;
-            double z = this -> z - b.z;
+            float x = this -> x - b.x;
+            float y = this -> y - b.y;
+            float z = this -> z - b.z;
             return Vec3(x, y, z);
         }
-        inline Vec3 operator*(const double c) {
-            double x = this -> x * c;
-            double y = this -> y * c;
-            double z = this -> z * c;
+        inline Vec3 operator*(const float c) {
+            float x = this -> x * c;
+            float y = this -> y * c;
+            float z = this -> z * c;
             return Vec3(x, y, z);
         }
         inline Vec3 operator*(const int c) {
-            double x = this -> x * c;
-            double y = this -> y * c;
-            double z = this -> z * c;
+            float x = this -> x * c;
+            float y = this -> y * c;
+            float z = this -> z * c;
             return Vec3(x, y, z);
         }
-        inline double dot(const Vec3 &b) {
+        inline float dot(const Vec3 &b) {
             return this -> x * b.x + this -> y * b.y + this -> z * b.z;
         }
         inline bool operator==(const Vec3 &b) {
-            double e = SENSITIVITY;
+            float e = SENSITIVITY;
             if ((ABS((this -> x - b.x)) < e) && (ABS((this -> y - b.y)) < e) && (ABS((this -> z - b.z)) < e)) { 
                 return true;
             }
@@ -88,7 +88,7 @@ class Vec3{
         }
 
         inline void normalize() {
-            double d;
+            float d;
             d = this -> getLength();
             this -> x = this -> x/d;
             this -> y = this -> y/d;
@@ -99,24 +99,24 @@ class Vec3{
             return os << "X: " << b.x << " Y: " << b.y << " Z: " << b.z; 
         }
                 
-        inline double getLengthSquared() {
-            double x = this -> x;
-            double y = this -> y;
-            double z = this -> z;
+        inline float getLengthSquared() {
+            float x = this -> x;
+            float y = this -> y;
+            float z = this -> z;
             return x*x + y*y + z*z;
         }
-        inline double getLength() {
-            double x = this -> x;
-            double y = this -> y;
-            double z = this -> z;
+        inline float getLength() {
+            float x = this -> x;
+            float y = this -> y;
+            float z = this -> z;
             return sqrt(x*x + y*y + z*z);
         }
-        inline double distance(Vec3 &a) {
+        inline float distance(Vec3 &a) {
             return sqrt((a.x - x) * (a.x - x) + 
                         (a.y - y) * (a.y - y) + 
                         (a.z - z) * (a.z - z));
         }
-        inline double distanceSquare(Vec3 &a) {
+        inline float distanceSquare(Vec3 &a) {
             return (a.x - x) * (a.x - x) + 
                         (a.y - y) * (a.y - y) + 
                         (a.z - z) * (a.z - z);

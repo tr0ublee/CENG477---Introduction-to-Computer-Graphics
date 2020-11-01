@@ -2,9 +2,9 @@
 #include <iostream>
 
 int Sphere::intersectRay(Ray* ray) {
-	double A,B,C; //constants for the quadratic function	
-	double delta;
-    double t,t1,t2;
+	float A,B,C; //constants for the quadratic function	
+	float delta;
+    float t,t1,t2;
 
 	C = (ray -> e -> x - center -> x) * (ray -> e -> x - center -> x) + 
         (ray -> e -> y - center -> y) * (ray -> e -> y - center -> y) +
@@ -21,11 +21,11 @@ int Sphere::intersectRay(Ray* ray) {
         
 	delta = B * B - 4 * A * C;
 	
-	if (delta < 0) {
+	if (delta < 0.0f) {
         return -1;
     }
 
-	else if (delta == 0) {
+	else if (delta - 0.0f < 0.000001) {
 		t = -B / (2*A);
 	}
 	else {
@@ -38,13 +38,13 @@ int Sphere::intersectRay(Ray* ray) {
             t = t1;
         }
 		else {
-            t = -1; // time returned negative. so it doesnt intersect
+            t = -1.0f; // time returned negative. so it doesnt intersect
         }
     }
 	return t;
 }
 
-Sphere::Sphere(Material* material, Vec3* center, double r) {
+Sphere::Sphere(Material* material, Vec3* center, float r) {
     this -> material = material;
     this -> center = center;
     this -> r = r;

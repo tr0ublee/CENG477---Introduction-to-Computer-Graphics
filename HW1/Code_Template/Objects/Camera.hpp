@@ -12,21 +12,21 @@ class Camera {
         Vec3* u;        // v x w
         Vec3* m;
         Vec3* q;
-        double l;       // left
-        double r;       // right
-        double b;       // bottom
-        double t;       // top
-        double d;       // distance
-        double pixelW;
-        double pixelH;
-        double halfPixelW;
-        double halfPixelH;
+        float l;       // left
+        float r;       // right
+        float b;       // bottom
+        float t;       // top
+        float d;       // distance
+        float pixelW;
+        float pixelH;
+        float halfPixelW;
+        float halfPixelH;
         int imageWidth;
         int imageHeight;
         std::string imageName;
 
-        Camera(Vec3 &posX, Vec3 &gazeX, Vec3 &vX, Vec3 &uX, double l, double r, 
-                double b, double t, double d, int width, int height, const std::string &name);
+        Camera(Vec3 &posX, Vec3 &gazeX, Vec3 &vX, Vec3 &uX, float l, float r, 
+                float b, float t, float d, int width, int height, const std::string &name);
         Camera(parser::Camera cameraStruct);
         ~Camera();
 

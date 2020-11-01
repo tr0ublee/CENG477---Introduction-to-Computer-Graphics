@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-Camera::Camera(Vec3 &posX, Vec3 &gazeX, Vec3 &vX, Vec3 &uX, double l, double r, double b, double t, double d, int width, int height, const std::string &name) {
+Camera::Camera(Vec3 &posX, Vec3 &gazeX, Vec3 &vX, Vec3 &uX, float l, float r, float b, float t, float d, int width, int height, const std::string &name) {
     pos = new Vec3(posX);
     gaze = new Vec3(gazeX);
     v = new Vec3(vX);
@@ -19,8 +19,11 @@ Camera::Camera(parser::Camera cameraStruct) {
     pos = new Vec3(cameraStruct.position.x, cameraStruct.position.y, cameraStruct.position.z);
     gaze = new Vec3(cameraStruct.gaze.x, cameraStruct.gaze.y, cameraStruct.gaze.z);
     v = new Vec3(cameraStruct.up.x, cameraStruct.up.y, cameraStruct.up.z);
+    v -> normalize();
+    gaze -> normalize();
     Vec3 w((*gaze) * -1);
     u = new Vec3(v -> cross(*v,w));
+    u -> normalize();
     l = cameraStruct.near_plane.x;
     r = cameraStruct.near_plane.y;
     b = cameraStruct.near_plane.z;
@@ -31,13 +34,12 @@ Camera::Camera(parser::Camera cameraStruct) {
     imageHeight = cameraStruct.image_height;
     imageWidth = cameraStruct.image_width;
     imageName = cameraStruct.image_name;
-    pixelW = (r-l) / (double) imageWidth;
-    pixelH = (t-b) / (double) imageHeight;
+    pixelW = (r-l) / (float) imageWidth;
+    pixelH = (t-b) / (float) imageHeight;
     halfPixelW = pixelW * 0.5;
     halfPixelH = pixelH * 0.5;
 
-    v -> normalize();
-    u -> normalize();
+  
 }
 
 Camera::~Camera() {

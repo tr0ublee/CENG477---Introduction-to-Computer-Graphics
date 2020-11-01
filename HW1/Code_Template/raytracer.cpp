@@ -9,7 +9,7 @@
 #include "./Objects/Scene.hpp"
 #include <limits>
 
-#define INF std::numeric_limits<double>::max();
+#define INF std::numeric_limits<float>::max();
 typedef unsigned char RGB[3];
 typedef unsigned char* Image;
 using namespace std;
@@ -57,15 +57,19 @@ int main(int argc, char* argv[]){
             for (size_t y = 0; y < imageHeight; y++) {
                 Ray* ray = new Ray(x, y, currentCam);
                 // std::cout <<"i: "<< x <<" j: "<< y <<" ";
-                // std::cout << *ray -> e;
-                // std::cout << *ray -> d << std::endl;
+                // std::cout<<"X: "<<ray->e->x << " Y: "<<ray->e->y << " Z: "<<ray->e->z;
+                // std::cout<<"X: "<<ray->d->x << " Y: "<<ray->d->y << " Z: "<<ray->d->z << std::endl;
+                // if(colorIndex==30){
+                //     colorIndex++;
+                //     colorIndex--;
+                // }
 
                 Sphere* closestSphere = nullptr;
-                double tMin = INF;
+                float tMin = INF;
                 size_t numOfSpheres = scene -> numOfSpheres;
                 for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
                     Sphere* currentSphere = scene -> spheres[sphereIndex];
-                    double t = currentSphere -> intersectRay(ray);
+                    float t = currentSphere -> intersectRay(ray);
                     // cout << t << endl;
                     if (FLOAT_EQ(t, 1.0) || FLOAT_G(t, 1.0)) {
                         // t >= 1.0
@@ -86,34 +90,34 @@ int main(int argc, char* argv[]){
                         Vec3 normal = intersectionPoint - *(closestSphere ->center);
                         wi.normalize();
                         normal.normalize();
-                        double costheta = std::max(0.0, wi.dot(normal));
-                        double distanceSquare = intersectionPoint.distanceSquare(*(currentLight -> pos)); 
-                        double rCoef = closestSphere -> material -> diffuseReflectance -> x;
-                        double gCoef = closestSphere -> material -> diffuseReflectance -> y;
-                        double bCoef = closestSphere -> material -> diffuseReflectance -> z;
-                        double rIntensity = currentLight -> intensity -> x;
-                        double gIntensity = currentLight -> intensity -> y;
-                        double bIntensity = currentLight -> intensity -> z; 
-                        double Er = rIntensity / distanceSquare;
-                        double Eg = gIntensity / distanceSquare;
-                        double Eb = bIntensity / distanceSquare;
+                        float costheta = std::max(0.0f, wi.dot(normal));
+                        float distanceSquare = intersectionPoint.distanceSquare(*(currentLight -> pos)); 
+                        float rCoef = closestSphere -> material -> diffuseReflectance -> x;
+                        float gCoef = closestSphere -> material -> diffuseReflectance -> y;
+                        float bCoef = closestSphere -> material -> diffuseReflectance -> z;
+                        float rIntensity = currentLight -> intensity -> x;
+                        float gIntensity = currentLight -> intensity -> y;
+                        float bIntensity = currentLight -> intensity -> z; 
+                        float Er = rIntensity / distanceSquare;
+                        float Eg = gIntensity / distanceSquare;
+                        float Eb = bIntensity / distanceSquare;
                         // ambient
-                        double kr = scene -> ambientLight -> x;
-                        double kg = scene -> ambientLight -> y;
-                        double kb = scene -> ambientLight -> z;
-                        double ir = closestSphere -> material -> ambientReflectance -> x;
-                        double ig = closestSphere -> material -> ambientReflectance -> y;
-                        double ib = closestSphere -> material -> ambientReflectance -> z;
+                        float kr = scene -> ambientLight -> x;
+                        float kg = scene -> ambientLight -> y;
+                        float kb = scene -> ambientLight -> z;
+                        float ir = closestSphere -> material -> ambientReflectance -> x;
+                        float ig = closestSphere -> material -> ambientReflectance -> y;
+                        float ib = closestSphere -> material -> ambientReflectance -> z;
 
-                        image[colorIndex] = (char) std::round(kr * ir);
-                        image[colorIndex] += (char) std::round(rCoef * costheta* Er);
-                        image[colorIndex] = image[colorIndex] > 255 ? 255 : image[colorIndex];
-                        image[colorIndex+1] = (char) std::round(kg * ig);
-                        image[colorIndex+1] += (char) std::round(gCoef * costheta* Eg);
-                        image[colorIndex+1] = image[colorIndex+1] > 255 ? 255 : image[colorIndex+1];
-                        image[colorIndex+2] = (char) std::round(kb * ib);
-                        image[colorIndex+2] += (char) std::round(bCoef * costheta* Eb);
-                        image[colorIndex+2] = image[colorIndex+2] > 255 ? 255 : image[colorIndex+2];
+                        // image[colorIndex] = kr * ir;
+                        image[colorIndex] += rCoef * costheta* Er;
+                        image[colorIndex] = image[colorIndex] > 255.0 ? 255.0 : image[colorIndex];
+                        // image[colorIndex+1] = kg * ig;
+                        image[colorIndex+1] += gCoef * costheta* Eg;
+                        image[colorIndex+1] = image[colorIndex+1] > 255.0 ? 255.0 : image[colorIndex+1];
+                        // image[colorIndex+2] = kb * ib;
+                        image[colorIndex+2] += bCoef * costheta* Eb;
+                        image[colorIndex+2] = image[colorIndex+2] > 255.0 ? 255.0 : image[colorIndex+2];
 
                     }
                 } 
