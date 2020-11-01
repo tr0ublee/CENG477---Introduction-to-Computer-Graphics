@@ -1,5 +1,5 @@
 #include "Sphere.hpp"
-
+#include <iostream>
 
 int Sphere::intersectRay(Ray* ray) {
 	double A,B,C; //constants for the quadratic function	
@@ -28,7 +28,6 @@ int Sphere::intersectRay(Ray* ray) {
 	else if (delta == 0) {
 		t = -B / (2*A);
 	}
-
 	else {
 		delta = sqrt(delta);
 		A = 2 * A;

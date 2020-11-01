@@ -56,6 +56,10 @@ int main(int argc, char* argv[]){
         for (size_t x = 0; x< imageWidth; x++) {
             for (size_t y = 0; y < imageHeight; y++) {
                 Ray* ray = new Ray(x, y, currentCam);
+                // std::cout <<"i: "<< x <<" j: "<< y <<" ";
+                // std::cout << *ray -> e;
+                // std::cout << *ray -> d << std::endl;
+
                 Sphere* closestSphere = nullptr;
                 double tMin = INF;
                 size_t numOfSpheres = scene -> numOfSpheres;
@@ -65,10 +69,8 @@ int main(int argc, char* argv[]){
                     // cout << t << endl;
                     if (FLOAT_EQ(t, 1.0) || FLOAT_G(t, 1.0)) {
                         // t >= 1.0
-                        cout << 1 << endl;
                         if (FLOAT_G(tMin, t)) {
                             // t < tMin
-                            cout << 2 << endl;
                             tMin = t;
                             closestSphere = currentSphere;
                         }
@@ -77,6 +79,7 @@ int main(int argc, char* argv[]){
                 if (closestSphere != nullptr) { // shading
                     size_t numOfLights = scene -> numOfLights;
                     for (size_t lightIndex = 0; lightIndex < numOfLights; lightIndex++) {
+                        // diffuse
                         PointLight* currentLight = scene -> lights[lightIndex];
                         Vec3 intersectionPoint = Vec3(*(ray -> e) + *(ray -> d) * tMin); 
                         Vec3 wi = *currentLight -> pos - intersectionPoint;
@@ -94,9 +97,24 @@ int main(int argc, char* argv[]){
                         double Er = rIntensity / distanceSquare;
                         double Eg = gIntensity / distanceSquare;
                         double Eb = bIntensity / distanceSquare;
-                        image[colorIndex] = rCoef * costheta* Er;
-                        image[colorIndex+1] = gCoef * costheta* Eg;
-                        image[colorIndex+2] = bCoef * costheta* Eb;
+                        // ambient
+                        double kr = scene -> ambientLight -> x;
+                        double kg = scene -> ambientLight -> y;
+                        double kb = scene -> ambientLight -> z;
+                        double ir = closestSphere -> material -> ambientReflectance -> x;
+                        double ig = closestSphere -> material -> ambientReflectance -> y;
+                        double ib = closestSphere -> material -> ambientReflectance -> z;
+
+                        image[colorIndex] = (char) std::round(kr * ir);
+                        image[colorIndex] += (char) std::round(rCoef * costheta* Er);
+                        image[colorIndex] = image[colorIndex] > 255 ? 255 : image[colorIndex];
+                        image[colorIndex+1] = (char) std::round(kg * ig);
+                        image[colorIndex+1] += (char) std::round(gCoef * costheta* Eg);
+                        image[colorIndex+1] = image[colorIndex+1] > 255 ? 255 : image[colorIndex+1];
+                        image[colorIndex+2] = (char) std::round(kb * ib);
+                        image[colorIndex+2] += (char) std::round(bCoef * costheta* Eb);
+                        image[colorIndex+2] = image[colorIndex+2] > 255 ? 255 : image[colorIndex+2];
+
                     }
                 } 
 
