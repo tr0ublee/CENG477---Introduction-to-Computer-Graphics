@@ -6,7 +6,7 @@ Scene::Scene(){
 
 }
 
-Scene::Scene(parser::Scene sceneStruct) {
+Scene::Scene(parser::Scene &sceneStruct) {
     background = new Color(sceneStruct.background_color.x, sceneStruct.background_color.y, sceneStruct.background_color.z);
     shadowRayEpsilon = sceneStruct.shadow_ray_epsilon;
     maxRecursionDepth = sceneStruct.max_recursion_depth;

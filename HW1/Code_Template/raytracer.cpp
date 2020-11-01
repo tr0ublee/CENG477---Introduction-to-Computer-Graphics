@@ -10,21 +10,53 @@
 
 
 typedef unsigned char RGB[3];
-
+typedef unsigned char* Image;
 using namespace std;
+
+void initScene(const char* path, Scene** scene) {
+   parser::Scene* tmpScene = new parser::Scene();
+   tmpScene->loadFromXml(path);
+   *scene = new Scene(*tmpScene);
+   delete tmpScene;
+   tmpScene = nullptr;
+}
+
+void initImage(Image image, Scene* scene, int width, int height) {
+    char r = (char) scene -> background -> r;
+    char g = (char) scene -> background -> g; 
+    char b = (char) scene -> background -> b;
+    size_t i = 0;
+    cout << *image << endl;
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            image[i++] = r; // r
+            image[i++] = g; // g
+            image[i++] = b; // b
+        }
+    }
+}
+
 int main(int argc, char* argv[]){
     
     if (argc < 2) {
         std::cerr << "No XML provided" << endl;
         return -1;
     }
+    Scene* scene;
+    initScene(argv[1], &scene);
+    int numOfCams = scene -> numOfCameras;
+    for (size_t i = 0; i < numOfCams; i++) {
+        Camera* currentCam = scene -> cameras[i];
+        int imageWidth = currentCam -> imageWidth;
+        int imageHeight = currentCam -> imageHeight;
+        Image image = (Image) std::malloc(sizeof(unsigned char)*(imageWidth*imageHeight*3)); // [RGB | RGB | RGB...]
+        initImage(image, scene, imageWidth, imageHeight);
+        write_ppm("test.ppm", image, imageWidth, imageHeight);
+        break;
 
-    cout << argv[1]<<endl;
-    parser::Scene scene;
-    scene.loadFromXml(argv[1]);
-    cout << scene.shadow_ray_epsilon << endl;
-    Scene ourScene(scene);
-    cout << ourScene.shadowRayEpsilon<<endl;
+
+
+    }
 
 }
 

@@ -15,12 +15,16 @@ class Camera {
         double b;       // bottom
         double t;       // top
         double d;       // distance
-        long imageWidth;
-        long imageHeight;
+        double pixelW;
+        double pixelH;
+        double halfPixelW;
+        double halfPixelH;
+        int imageWidth;
+        int imageHeight;
         std::string imageName;
 
         Camera(Vec3 &posX, Vec3 &gazeX, Vec3 &vX, Vec3 &uX, double l, double r, 
-                double b, double t, double d, long width, long height, const std::string &name);
+                double b, double t, double d, int width, int height, const std::string &name);
         Camera(parser::Camera cameraStruct);
         ~Camera();
 

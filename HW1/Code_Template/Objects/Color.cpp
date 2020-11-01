@@ -9,12 +9,14 @@ Color::Color(int red, int green, int blue) {
     r = red;
     g = green;
     b = blue;
+    this -> normalizeColor();
 }
 
 Color::Color(Color &param) {
     r = param.r;
     g = param.g;
     b = param.b;
+    this -> normalizeColor();
 }
 Color::~Color() {
 

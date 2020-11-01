@@ -36,7 +36,7 @@ class Scene{
         std::vector<Triangle*> triangles;
         std::vector<Sphere*> spheres;
         Scene();
-        Scene(parser::Scene sceneStruct);
+        Scene(parser::Scene &sceneStruct);
         ~Scene();
 };
 

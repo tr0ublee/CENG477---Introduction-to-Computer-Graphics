@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-Camera::Camera(Vec3 &posX, Vec3 &gazeX, Vec3 &vX, Vec3 &uX, double l, double r, double b, double t, double d, long width, long height, const std::string &name) {
+Camera::Camera(Vec3 &posX, Vec3 &gazeX, Vec3 &vX, Vec3 &uX, double l, double r, double b, double t, double d, int width, int height, const std::string &name) {
     pos = new Vec3(posX);
     gaze = new Vec3(gazeX);
     v = new Vec3(vX);
@@ -29,6 +29,10 @@ Camera::Camera(parser::Camera cameraStruct) {
     imageHeight = cameraStruct.image_height;
     imageWidth = cameraStruct.image_width;
     imageName = cameraStruct.image_name;
+    pixelW = (r-l) / (double) imageWidth;
+    pixelH = (t-b) / (double) imageHeight;
+    halfPixelW = pixelW / 2;
+    halfPixelH = pixelH / 2;
 
     v -> normalize();
     u -> normalize();
