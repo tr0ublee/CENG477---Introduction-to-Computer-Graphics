@@ -26,13 +26,15 @@ Camera::Camera(parser::Camera cameraStruct) {
     b = cameraStruct.near_plane.z;
     t = cameraStruct.near_plane.w;
     d = cameraStruct.near_distance;
+    m = new Vec3((*pos) + (*gaze) * d);
+    q = new Vec3((*m) + (*u) * l + (*v) * t);
     imageHeight = cameraStruct.image_height;
     imageWidth = cameraStruct.image_width;
     imageName = cameraStruct.image_name;
     pixelW = (r-l) / (double) imageWidth;
     pixelH = (t-b) / (double) imageHeight;
-    halfPixelW = pixelW / 2;
-    halfPixelH = pixelH / 2;
+    halfPixelW = pixelW * 0.5;
+    halfPixelH = pixelH * 0.5;
 
     v -> normalize();
     u -> normalize();
@@ -42,5 +44,7 @@ Camera::~Camera() {
     delete pos;
     delete gaze;
     delete v;
+    delete m;
+    delete q;
     delete u;
 }

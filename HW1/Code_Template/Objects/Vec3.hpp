@@ -4,6 +4,9 @@
 #include <iostream>
 #include <math.h>       /* sqrt */
 #define ABS(a) ((a)>0?(a):-1*(a))
+#define SENSITIVITY 0.000000001
+#define FLOAT_EQ(a,b) (ABS(a - b) < SENSITIVITY)
+#define FLOAT_G(a,b) (a > b)
 
 class Vec3{
 
@@ -63,7 +66,7 @@ class Vec3{
             return this -> x * b.x + this -> y * b.y + this -> z * b.z;
         }
         inline bool operator==(const Vec3 &b) {
-            double e = 0.0001;
+            double e = SENSITIVITY;
             if ((ABS((this -> x - b.x)) < e) && (ABS((this -> y - b.y)) < e) && (ABS((this -> z - b.z)) < e)) { 
                 return true;
             }
@@ -107,6 +110,16 @@ class Vec3{
             double y = this -> y;
             double z = this -> z;
             return sqrt(x*x + y*y + z*z);
+        }
+        inline double distance(Vec3 &a) {
+            return sqrt((a.x - x) * (a.x - x) + 
+                        (a.y - y) * (a.y - y) + 
+                        (a.z - z) * (a.z - z));
+        }
+        inline double distanceSquare(Vec3 &a) {
+            return (a.x - x) * (a.x - x) + 
+                        (a.y - y) * (a.y - y) + 
+                        (a.z - z) * (a.z - z);
         }
 };
 

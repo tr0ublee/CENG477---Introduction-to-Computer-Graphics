@@ -10,6 +10,8 @@ class Camera {
         Vec3* gaze;     // -w
         Vec3* v;        // up vector
         Vec3* u;        // v x w
+        Vec3* m;
+        Vec3* q;
         double l;       // left
         double r;       // right
         double b;       // bottom

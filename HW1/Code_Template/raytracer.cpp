@@ -7,8 +7,9 @@
 #include "./Objects/Camera.hpp"
 #include "./Objects/Mesh.hpp"
 #include "./Objects/Scene.hpp"
+#include <limits>
 
-
+#define INF std::numeric_limits<double>::max();
 typedef unsigned char RGB[3];
 typedef unsigned char* Image;
 using namespace std;
@@ -51,13 +52,67 @@ int main(int argc, char* argv[]){
         int imageHeight = currentCam -> imageHeight;
         Image image = (Image) std::malloc(sizeof(unsigned char)*(imageWidth*imageHeight*3)); // [RGB | RGB | RGB...]
         initImage(image, scene, imageWidth, imageHeight);
+        size_t colorIndex = 0;
+        for (size_t x = 0; x< imageWidth; x++) {
+            for (size_t y = 0; y < imageHeight; y++) {
+                Ray* ray = new Ray(x, y, currentCam);
+                Sphere* closestSphere = nullptr;
+                double tMin = INF;
+                size_t numOfSpheres = scene -> numOfSpheres;
+                for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
+                    Sphere* currentSphere = scene -> spheres[sphereIndex];
+                    double t = currentSphere -> intersectRay(ray);
+                    // cout << t << endl;
+                    if (FLOAT_EQ(t, 1.0) || FLOAT_G(t, 1.0)) {
+                        // t >= 1.0
+                        cout << 1 << endl;
+                        if (FLOAT_G(tMin, t)) {
+                            // t < tMin
+                            cout << 2 << endl;
+                            tMin = t;
+                            closestSphere = currentSphere;
+                        }
+                    }
+                }
+                if (closestSphere != nullptr) { // shading
+                    size_t numOfLights = scene -> numOfLights;
+                    for (size_t lightIndex = 0; lightIndex < numOfLights; lightIndex++) {
+                        PointLight* currentLight = scene -> lights[lightIndex];
+                        Vec3 intersectionPoint = Vec3(*(ray -> e) + *(ray -> d) * tMin); 
+                        Vec3 wi = *currentLight -> pos - intersectionPoint;
+                        Vec3 normal = intersectionPoint - *(closestSphere ->center);
+                        wi.normalize();
+                        normal.normalize();
+                        double costheta = std::max(0.0, wi.dot(normal));
+                        double distanceSquare = intersectionPoint.distanceSquare(*(currentLight -> pos)); 
+                        double rCoef = closestSphere -> material -> diffuseReflectance -> x;
+                        double gCoef = closestSphere -> material -> diffuseReflectance -> y;
+                        double bCoef = closestSphere -> material -> diffuseReflectance -> z;
+                        double rIntensity = currentLight -> intensity -> x;
+                        double gIntensity = currentLight -> intensity -> y;
+                        double bIntensity = currentLight -> intensity -> z; 
+                        double Er = rIntensity / distanceSquare;
+                        double Eg = gIntensity / distanceSquare;
+                        double Eb = bIntensity / distanceSquare;
+                        image[colorIndex] = rCoef * costheta* Er;
+                        image[colorIndex+1] = gCoef * costheta* Eg;
+                        image[colorIndex+2] = bCoef * costheta* Eb;
+                    }
+                } 
+
+                colorIndex += 3;
+                delete ray;
+            }
+        }
+        
         write_ppm("test.ppm", image, imageWidth, imageHeight);
         break;
-
-
-
     }
 
+
+
+    delete scene;
+    return 0;
 }
 
 //backup
