@@ -1,3 +1,5 @@
+#pragma GCC optimization ("unroll-loops")
+#pragma GCC target("avx,avx2,fma")
 #include <iostream>
 #include "parser.h"
 #include "ppm.h"
@@ -9,6 +11,7 @@
 #include "./Objects/Scene.hpp"
 #include "stdio.h"
 #include <limits>
+#include <chrono>
 
 #define INF std::numeric_limits<float>::max();
 typedef unsigned char RGB[3];
@@ -54,6 +57,12 @@ int main(int argc, char* argv[]){
         std::cerr << "No XML provided" << endl;
         return -1;
     }
+
+    /** Time **/
+    std::chrono::time_point<std::chrono::system_clock> start, end; 
+    start = std::chrono::system_clock::now();
+    /** Time **/
+
     Scene* scene;
     initScene(argv[1], &scene);
     int numOfCams = scene -> numOfCameras;
@@ -293,7 +302,11 @@ int main(int argc, char* argv[]){
         break;
     }
 
-
+    /** Time **/
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n"; 
+    /** Time **/
 
     delete scene;
     return 0;
