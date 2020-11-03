@@ -6,7 +6,7 @@ class Mesh{
     public:
 
         Material* material;
-        std::vector<Face*> Faces;
+        std::vector<Face*> faces;
         size_t numOfFaces;
         Mesh(Material *a, std::vector<Face> &faces, size_t faceSize);
         ~Mesh();
