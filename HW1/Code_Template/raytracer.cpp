@@ -15,6 +15,13 @@ typedef unsigned char RGB[3];
 typedef unsigned char* Image;
 using namespace std;
 
+typedef enum closestObject {
+    SPHERE,
+    TRIANGLE,
+    MESH,
+    NONE
+} ClosestObject;
+
 void printVec(Vec3 a) {
 	printf("X:%lf Y:%lf Z:%lf \n", a.x, a.y, a.z);
 }
@@ -61,7 +68,11 @@ int main(int argc, char* argv[]){
             for (size_t x = 0; x < imageWidth; x++) {
                 Ray* ray = new Ray(x, y, currentCam);
                 Sphere* closestSphere = nullptr;
+                Triangle* closestTriangle = nullptr;
+                Mesh* closestMesh = nullptr;
+                ClosestObject closestObject =  NONE;
                 float tMin = INF;
+                size_t numOfLights = scene -> numOfLights;
                 size_t numOfSpheres = scene -> numOfSpheres;
                 for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
                     Sphere* currentSphere = scene -> spheres[sphereIndex];
@@ -72,10 +83,25 @@ int main(int argc, char* argv[]){
                             // t < tMin
                             tMin = t;
                             closestSphere = currentSphere;
+                            closestObject = SPHERE;
                         }
                     }
                 }
-                if (closestSphere != nullptr) { // shading
+                size_t numOfTriangles = scene -> numOfTriangles;
+                for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
+                    Triangle* currentTriangle = scene -> triangles[triangleIndex];
+                    float t = currentTriangle -> intersectRay(ray);
+                    if (t > 1.0f || FLOAT_EQ(t,1.0f)) {
+                        // t >= 1.0
+                        if (tMin > t) {
+                            // t < tMin
+                            tMin = t;
+                            closestTriangle = currentTriangle;
+                            closestObject = TRIANGLE;
+                        }
+                    }
+                }
+                if (closestObject == SPHERE && closestSphere != nullptr) { // shading
                     // ambient
                     float kr = scene -> ambientLight -> x;
                     float kg = scene -> ambientLight -> y;
@@ -88,7 +114,6 @@ int main(int argc, char* argv[]){
                     double green = kg * ig;
                     double blue = kb * ib;
                     // shading for each light
-                    size_t numOfLights = scene -> numOfLights;
                     for (size_t lightIndex = 0; lightIndex < numOfLights; lightIndex++) {
                         // diffuse
                         PointLight* currentLight = scene -> lights[lightIndex];
@@ -112,12 +137,77 @@ int main(int argc, char* argv[]){
                         red += rCoef * costheta* Er;
                         green += gCoef * costheta* Eg;
                         blue += bCoef * costheta* Eb;
+
+                        // specular
+                        Vec3 wo = *(currentCam -> pos) - intersectionPoint;
+                        wo.normalize();
+                        Vec3 wio = wi + wo;
+                        Vec3 h = wio / wio.getLength();
+                        h.normalize();
+                        float cosalpha = std::max(0.0f, normal.dot(h));
+                        cosalpha = std::pow(cosalpha, closestSphere -> material -> phongExponent);
+                        red += (closestSphere -> material -> specularReflectance -> x) * cosalpha * Er;
+                        green += (closestSphere -> material -> specularReflectance -> y) * cosalpha * Eg;
+                        blue += (closestSphere -> material -> specularReflectance -> z) * cosalpha * Eb;
                     }
 
                     image[colorIndex] = red > 255 ? 255 : round(red);
                     image[colorIndex+1] = green > 255 ? 255 : round(green);
                     image[colorIndex+2] = blue > 255 ? 255 : round(blue);
-                } 
+                } else if (closestObject == TRIANGLE && closestTriangle != nullptr) {
+                    // ambient
+                    float kr = scene -> ambientLight -> x;
+                    float kg = scene -> ambientLight -> y;
+                    float kb = scene -> ambientLight -> z;
+                    float ir = closestTriangle -> material -> ambientReflectance -> x;
+                    float ig = closestTriangle -> material -> ambientReflectance -> y;
+                    float ib = closestTriangle -> material -> ambientReflectance -> z;
+                    // rgb values
+                    double red = kr * ir;
+                    double green = kg * ig;
+                    double blue = kb * ib;
+                    // shading for each light
+                    for (size_t lightIndex = 0; lightIndex < numOfLights; lightIndex++) {
+                        // diffuse
+                        PointLight* currentLight = scene -> lights[lightIndex];
+                        Vec3 intersectionPoint = Vec3(*(ray -> e) + *(ray -> d) * tMin); 
+                        Vec3 wi = *currentLight -> pos - intersectionPoint;
+                        Vec3 normal = *(closestTriangle -> normal) ;
+                        wi.normalize();
+                        float costheta = std::max(0.0f, wi.dot(normal));
+                        float distanceSquare = intersectionPoint.distanceSquare(*(currentLight -> pos)); 
+                        float rCoef = closestTriangle -> material -> diffuseReflectance -> x;
+                        float gCoef = closestTriangle -> material -> diffuseReflectance -> y;
+                        float bCoef = closestTriangle -> material -> diffuseReflectance -> z;
+                        float rIntensity = currentLight -> intensity -> x;
+                        float gIntensity = currentLight -> intensity -> y;
+                        float bIntensity = currentLight -> intensity -> z; 
+                        float Er = rIntensity / distanceSquare;
+                        float Eg = gIntensity / distanceSquare;
+                        float Eb = bIntensity / distanceSquare;
+
+                        red += rCoef * costheta* Er;
+                        green += gCoef * costheta* Eg;
+                        blue += bCoef * costheta* Eb;
+
+                        // specular
+                        Vec3 wo = *(currentCam -> pos) - intersectionPoint;
+                        wo.normalize();
+                        Vec3 wio = wi + wo;
+                        Vec3 h = wio / wio.getLength();
+                        h.normalize();
+                        float cosalpha = std::max(0.0f, normal.dot(h));
+                        cosalpha = std::pow(cosalpha, closestTriangle -> material -> phongExponent);
+                        red += (closestTriangle -> material -> specularReflectance -> x) * cosalpha * Er;
+                        green += (closestTriangle -> material -> specularReflectance -> y) * cosalpha * Eg;
+                        blue += (closestTriangle -> material -> specularReflectance -> z) * cosalpha * Eb;
+                    }
+
+                    image[colorIndex] = red > 255 ? 255 : round(red);
+                    image[colorIndex+1] = green > 255 ? 255 : round(green);
+                    image[colorIndex+2] = blue > 255 ? 255 : round(blue);
+
+                }
 
                 colorIndex += 3;
                 delete ray;
