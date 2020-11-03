@@ -107,17 +107,11 @@ int main(int argc, char* argv[]){
                     Mesh* currentMesh = scene -> meshes[meshIndex];
                     size_t numOfFaces = currentMesh -> numOfFaces;
                     for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
-                        Face* currentFace = currentMesh -> faces[i];;
+                        Face* currentFace = currentMesh -> faces[faceIndex];;
                         float t = currentFace -> intersectRay(ray);
-                        // if (faceIndex == 1) {
-                            
-                        //     if (t>-1.0f) {
-                        //         cout<<"t: "<<t<<endl;
-                        //     }
-                        // }
                         if (t > 1.0f || FLOAT_EQ(t, 1.0f)) {
                             // t >= 1.0
-                            if (t < tMin || FLOAT_EQ(t,tMin)) {
+                            if (t < tMin) {
                                 // t < tMin
                                 tMin = t;
                                 closestMeshFace = currentFace;
