@@ -57,8 +57,8 @@ int main(int argc, char* argv[]){
         Image image = (Image) std::malloc(sizeof(unsigned char)*(imageWidth*imageHeight*3)); // [RGB | RGB | RGB...]
         initImage(image, scene, imageWidth, imageHeight);
         size_t colorIndex = 0;
-        for (size_t x = 0; x< imageWidth; x++) {
-            for (size_t y = 0; y < imageHeight; y++) {
+        for (size_t y = 0; y< imageHeight; y++) {
+            for (size_t x = 0; x < imageWidth; x++) {
                 Ray* ray = new Ray(x, y, currentCam);
                 Sphere* closestSphere = nullptr;
                 float tMin = INF;
@@ -76,13 +76,23 @@ int main(int argc, char* argv[]){
                     }
                 }
                 if (closestSphere != nullptr) { // shading
+                    // ambient
+                    float kr = scene -> ambientLight -> x;
+                    float kg = scene -> ambientLight -> y;
+                    float kb = scene -> ambientLight -> z;
+                    float ir = closestSphere -> material -> ambientReflectance -> x;
+                    float ig = closestSphere -> material -> ambientReflectance -> y;
+                    float ib = closestSphere -> material -> ambientReflectance -> z;
+                    // rgb values
+                    double red = kr * ir;
+                    double green = kg * ig;
+                    double blue = kb * ib;
+                    // shading for each light
                     size_t numOfLights = scene -> numOfLights;
                     for (size_t lightIndex = 0; lightIndex < numOfLights; lightIndex++) {
                         // diffuse
                         PointLight* currentLight = scene -> lights[lightIndex];
                         Vec3 intersectionPoint = Vec3(*(ray -> e) + *(ray -> d) * tMin); 
-                        // printf("i: %d j: %d \n",x,y);
-				        // printVec(intersectionPoint);
                         Vec3 wi = *currentLight -> pos - intersectionPoint;
                         Vec3 normal = intersectionPoint - *(closestSphere ->center);
                         wi.normalize();
@@ -98,25 +108,15 @@ int main(int argc, char* argv[]){
                         float Er = rIntensity / distanceSquare;
                         float Eg = gIntensity / distanceSquare;
                         float Eb = bIntensity / distanceSquare;
-                        // ambient
-                        float kr = scene -> ambientLight -> x;
-                        float kg = scene -> ambientLight -> y;
-                        float kb = scene -> ambientLight -> z;
-                        float ir = closestSphere -> material -> ambientReflectance -> x;
-                        float ig = closestSphere -> material -> ambientReflectance -> y;
-                        float ib = closestSphere -> material -> ambientReflectance -> z;
 
-                        // image[colorIndex] = kr * ir;
-                        image[colorIndex] += rCoef * costheta* Er;
-                        image[colorIndex] = image[colorIndex] > 255.0 ? 255.0 : image[colorIndex];
-                        // image[colorIndex+1] = kg * ig;
-                        image[colorIndex+1] += gCoef * costheta* Eg;
-                        image[colorIndex+1] = image[colorIndex+1] > 255.0 ? 255.0 : image[colorIndex+1];
-                        // image[colorIndex+2] = kb * ib;
-                        image[colorIndex+2] += bCoef * costheta* Eb;
-                        image[colorIndex+2] = image[colorIndex+2] > 255.0 ? 255.0 : image[colorIndex+2];
-
+                        red += rCoef * costheta* Er;
+                        green += gCoef * costheta* Eg;
+                        blue += bCoef * costheta* Eb;
                     }
+
+                    image[colorIndex] = red > 255 ? 255 : round(red);
+                    image[colorIndex+1] = green > 255 ? 255 : round(green);
+                    image[colorIndex+2] = blue > 255 ? 255 : round(blue);
                 } 
 
                 colorIndex += 3;
