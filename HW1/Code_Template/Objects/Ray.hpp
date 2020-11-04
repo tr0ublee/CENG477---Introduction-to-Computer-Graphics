@@ -12,7 +12,7 @@ class Ray{
         bool eDynamic;
 
         Ray(Vec3 &a, Vec3 &b);
-        Ray (size_t x, size_t y, Camera* cam);
+        Ray (size_t x, size_t y, Camera* cam, Vec3 &sv);
         ~Ray();
 };
 #endif

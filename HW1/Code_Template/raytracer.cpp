@@ -62,8 +62,9 @@ void shade (Scene* scene, Image image, Camera* currentCam, int imageWidth, int i
     size_t y = incrementAndQueryRow();
     while (y < imageHeight){
         size_t colorIndex = y*imageWidth*3;
+        Vec3 sv = *(currentCam -> v) * (y*(currentCam->pixelH) + (currentCam -> halfPixelH));
         for (size_t x = 0; x < imageWidth; x++) {
-            Ray* ray = new Ray(x, y, currentCam);
+            Ray* ray = new Ray(x, y, currentCam, sv);
             Sphere* closestSphere = nullptr;
             Triangle* closestTriangle = nullptr;
             Mesh* closestMesh = nullptr;
@@ -122,7 +123,6 @@ void shade (Scene* scene, Image image, Camera* currentCam, int imageWidth, int i
                 if (closestObject == SPHERE && closestSphere != nullptr) {
                     currentMaterial = closestSphere -> material;
                     currentNormal = intersectionPoint - *(closestSphere -> center);
-                    currentNormal.normalize();
                 } else if (closestObject == TRIANGLE && closestTriangle != nullptr) {
                     currentMaterial = closestTriangle -> material;
                     currentNormal = *(closestTriangle -> indices -> normal);
@@ -130,6 +130,7 @@ void shade (Scene* scene, Image image, Camera* currentCam, int imageWidth, int i
                     currentMaterial = closestMesh -> material;
                     currentNormal = *(closestMeshFace -> normal);
                 }
+                currentNormal.normalize();
                 // ambient
                 float kr = scene -> ambientLight -> x;
                 float kg = scene -> ambientLight -> y;
@@ -224,6 +225,15 @@ void shade (Scene* scene, Image image, Camera* currentCam, int imageWidth, int i
                     red += (currentMaterial -> specularReflectance -> x) * cosalpha * Er;
                     green += (currentMaterial -> specularReflectance -> y) * cosalpha * Eg;
                     blue += (currentMaterial -> specularReflectance -> z) * cosalpha * Eb;
+
+                    // mirror
+                    Vec3 wr = wo * -1 + currentNormal * 2 * (currentNormal.dot(wo)); 
+                    wr.normalize();
+                    red += (currentMaterial -> mirrorReflectance -> x) * wr.x;
+                    green += (currentMaterial -> mirrorReflectance -> y) * wr.y;
+                    blue += (currentMaterial -> mirrorReflectance -> z) * wr.z;
+
+                    // Li -> received radiance
                 }
                 image[colorIndex] = red > 255 ? 255 : round(red);
                 image[colorIndex+1] = green > 255 ? 255 : round(green);
@@ -272,7 +282,7 @@ int main(int argc, char* argv[]){
             // no threading;
             shade(scene, image, currentCam, imageWidth, imageHeight);
         }        
-        write_ppm(currentCam -> imageName, image, imageWidth, imageHeight);
+        write_ppm((currentCam -> imageName).c_str(), image, imageWidth, imageHeight);
     }
     /** Time **/
     end = std::chrono::system_clock::now();
