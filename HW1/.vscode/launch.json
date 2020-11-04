@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/Code_Template/rayTracer",
-            "args": ["${workspaceRoot}/Sample_Scenes/Input_Files/horse_and_mug.xml"],
+            "args": ["${workspaceRoot}/Sample_Scenes/Input_Files/bunny.xml"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

@@ -326,9 +326,10 @@ int main(int argc, char* argv[]){
             }
 
             for (int threadIndex = 0; threadIndex < cpuCoreNumber; threadIndex++) {
-                if(threads[i] -> joinable()){
+                if(threads[i]){
                     threads[i] -> join();
                     delete threads[i];
+                    threads[i] = nullptr;
                 }
             }
 
