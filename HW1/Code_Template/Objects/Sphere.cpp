@@ -34,11 +34,11 @@ float Sphere::intersectRay(Ray* ray) {
 		t1 = (-B + delta) / A;
 		t2 = (-B - delta) / A;        
         t1 = std::min(t1,t2);
-		if (t1 >= 1.0) {
-            t = t1;
+		if (t1 >= 0.0) {
+             t = t1;
         }
 		else {
-            t = -1.0f; // time returned negative. so it doesnt intersect
+             t = -1.0f; // time returned negative. so it doesnt intersect
         }
     }
 	return t;

@@ -65,7 +65,7 @@ float Face::intersectRay(Ray* ray) {
     }
 
 	t = -(f * akmjb + e * jcmal + d * blmkc) / M;
-	if (t < 1.0) {
+	if (t < 0.0) {
         return -1.0f;
     }
 
