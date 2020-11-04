@@ -9,7 +9,9 @@
                 "${workspaceRoot}/Code_Template/*.cpp",
                 "${workspaceRoot}/Code_Template/Objects/*.cpp",
                 "-o",
-                "Code_Template/rayTracer"
+                "Code_Template/rayTracer",
+                "-pthread",
+                "-O3"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
