@@ -322,14 +322,14 @@ int main(int argc, char* argv[]){
         if (cpuCoreNumber) {
 
             for (int threadIndex = 0; threadIndex < cpuCoreNumber; threadIndex++) {
-                threads[i] = new std::thread(shade, scene, image, currentCam, imageWidth, imageHeight);
+                threads[threadIndex] = new std::thread(shade, scene, image, currentCam, imageWidth, imageHeight);
             }
 
             for (int threadIndex = 0; threadIndex < cpuCoreNumber; threadIndex++) {
-                if(threads[i]){
-                    threads[i] -> join();
-                    delete threads[i];
-                    threads[i] = nullptr;
+                if(threads[threadIndex]){
+                    threads[threadIndex] -> join();
+                    delete threads[threadIndex];
+                    threads[threadIndex] = nullptr;
                 }
             }
 
