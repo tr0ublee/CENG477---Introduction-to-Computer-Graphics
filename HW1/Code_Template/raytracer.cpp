@@ -260,7 +260,7 @@ int main(int argc, char* argv[]){
     initScene(argv[1], &scene);
     int numOfCams = scene -> numOfCameras;
     for (size_t i = 0; i < numOfCams; i++) {
-        uint cpuCoreNumber = thread::hardware_concurrency();
+        unsigned int cpuCoreNumber = thread::hardware_concurrency();
         std::vector<std::thread*> threads(cpuCoreNumber);
         Camera* currentCam = scene -> cameras[i];
         int imageWidth = currentCam -> imageWidth;
