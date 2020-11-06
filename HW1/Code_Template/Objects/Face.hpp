@@ -6,7 +6,18 @@
 class Face{
     private:
 
-        float a,b,c,d,e,f;
+        float a,b,c; // the edge between vertex0 and vertex1
+        float d,e,f; // the edge between vertex0 and vertex2
+
+        inline void preComputeEdges() {
+            a = v0 -> x - v1 -> x;
+            b = v0 -> y - v1 -> y;
+            c = v0 -> z - v1 -> z;
+
+            d = v0 -> x - v2 -> x;
+            e = v0 -> y - v2 -> y;
+            f = v0 -> z - v2 -> z;
+        }
 
     public:
     
@@ -23,19 +34,7 @@ class Face{
             Vec3 ft = *(v2) - *(v0);
             this -> normal = new Vec3(fs.cross(fs,ft));
             this -> normal -> normalize();
-            Vec3 ma,mb,mc;
-
-            ma = *v0;
-            mb = *v1;
-            mc = *v2;
-            
-            a = ma.x - mb.x;
-            b = ma.y - mb.y;
-            c = ma.z - mb.z;
-
-            d = ma.x - mc.x;
-            e = ma.y - mc.y;
-            f = ma.z - mc.z;
+            preComputeEdges();
         }
 
         Face(const Face &copy) {
@@ -43,20 +42,7 @@ class Face{
             v1 = copy.v1;
             v2 = copy.v2;
             this -> normal = new Vec3(*copy.normal);
-
-            Vec3 ma,mb,mc;
-
-            ma = *v0;
-            mb = *v1;
-            mc = *v2;
-            
-            a = ma.x - mb.x;
-            b = ma.y - mb.y;
-            c = ma.z - mb.z;
-
-            d = ma.x - mc.x;
-            e = ma.y - mc.y;
-            f = ma.z - mc.z;
+            preComputeEdges();
         }
 
         ~Face() {

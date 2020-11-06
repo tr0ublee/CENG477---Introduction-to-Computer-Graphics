@@ -27,14 +27,16 @@ class Sphere {
             float A,B,C; //constants for the quadratic function	
             float delta;
             float t,t1,t2;
-            C = (ray -> e -> x - center -> x) * (ray -> e -> x - center -> x) + 
-                (ray -> e -> y - center -> y) * (ray -> e -> y - center -> y) +
-                (ray -> e -> z - center -> z) * (ray -> e -> z - center -> z) - 
-                r * r;
 
-            B = 2 * ray -> d -> x * (ray -> e -> x - center -> x) + 
-                2 * ray -> d -> y * (ray -> e -> y - center -> y) + 
-                2 * ray -> d -> z * (ray -> e -> z - center -> z);
+            float X = (ray -> e -> x - center -> x);
+            float Y = (ray -> e -> y - center -> y);
+            float Z = (ray -> e -> z - center -> z);
+
+            C = X * X + Y * Y + Z * Z- r * r;
+
+            B = 2 * ray -> d -> x * X + 
+                2 * ray -> d -> y * Y + 
+                2 * ray -> d -> z * Z;
 
             A = ray -> d -> x * ray -> d -> x + 
                 ray -> d -> y * ray -> d -> y + 
