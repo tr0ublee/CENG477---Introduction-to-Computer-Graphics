@@ -32,15 +32,21 @@ class Sphere {
             float Y = (ray -> e -> y - center -> y);
             float Z = (ray -> e -> z - center -> z);
 
+            float rDX = ray -> d -> x;
+            float rDY = ray -> d -> y;
+            float rDZ = ray -> d -> z;
+
+            float tThreshold = ray -> minTValue;
+
             C = X * X + Y * Y + Z * Z- r * r;
 
-            B = 2 * ray -> d -> x * X + 
-                2 * ray -> d -> y * Y + 
-                2 * ray -> d -> z * Z;
+            B = 2 * rDX * X + 
+                2 * rDY * Y + 
+                2 * rDZ * Z;
 
-            A = ray -> d -> x * ray -> d -> x + 
-                ray -> d -> y * ray -> d -> y + 
-                ray -> d -> z * ray -> d -> z;
+            A = rDX * rDX + 
+                rDY * rDY + 
+                rDZ * rDZ;
                 
             delta = B * B - 4 * A * C;
 
@@ -57,7 +63,7 @@ class Sphere {
                 t1 = (-B + delta) / A;
                 t2 = (-B - delta) / A;        
                 t1 = std::min(t1,t2);
-                if (t1 >= 0.0) {
+                if (t1 > tThreshold || FLOAT_EQ(t1, tThreshold)) {
                         t = t1;
                 }
                 else {

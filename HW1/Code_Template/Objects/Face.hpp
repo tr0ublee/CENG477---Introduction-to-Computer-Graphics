@@ -52,6 +52,7 @@ class Face{
         inline float intersectRay(Ray* ray) {
             float g,h,i,j,k,l;
             float beta,gamma,t;
+            float tThreshold = ray -> minTValue;
             
             float eimhf,gfmdi,dhmeg,akmjb,jcmal,blmkc;
 
@@ -80,7 +81,7 @@ class Face{
             }
 
             t = -(f * akmjb + e * jcmal + d * blmkc) / M;
-            if (t < 0.0) {
+            if (t < tThreshold) {
                 return -1.0f;
             }
 

@@ -57,46 +57,121 @@ int incrementAndQueryRow() {
     std::lock_guard<std::mutex> lock(rowMutex);
     return ++operatingRow;
 }
-
-void shade (Scene* scene, Image image, Camera* currentCam, int imageWidth, int imageHeight) {
-    size_t y = incrementAndQueryRow();
-    while (y < imageHeight){
-        size_t colorIndex = y*imageWidth*3;
-        Vec3 sv = *(currentCam -> v) * (y*(currentCam->pixelH) + (currentCam -> halfPixelH));
-        for (size_t x = 0; x < imageWidth; x++) {
-            Ray* ray = new Ray(x, y, currentCam, sv);
-            Sphere* closestSphere = nullptr;
-            Triangle* closestTriangle = nullptr;
-            Mesh* closestMesh = nullptr;
-            Face* closestMeshFace = nullptr;
-            ClosestObject closestObject =  NONE;
-            float tMin = INF;
-            size_t numOfLights = scene -> numOfLights;
-            size_t numOfSpheres = scene -> numOfSpheres;
-            for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
-                Sphere* currentSphere = scene -> spheres[sphereIndex];
-                float t = currentSphere -> intersectRay(ray);
-                if (t > 0.0f || FLOAT_EQ(t,0.0f)) {
-                    if (tMin > t) {
-                        // t < tMin
-                        tMin = t;
-                        closestSphere = currentSphere;
-                        closestObject = SPHERE;
-                    }
+Color getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
+    Sphere* closestSphere = nullptr;
+    Triangle* closestTriangle = nullptr;
+    Mesh* closestMesh = nullptr;
+    Face* closestMeshFace = nullptr;
+    ClosestObject closestObject =  NONE;
+    float tMin = INF;
+    size_t numOfLights = scene -> numOfLights;
+    size_t numOfSpheres = scene -> numOfSpheres;
+    for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
+        Sphere* currentSphere = scene -> spheres[sphereIndex];
+        float t = currentSphere -> intersectRay(ray);
+        if (t > 0.0f) {
+            if (tMin > t) {
+                // t < tMin
+                tMin = t;
+                closestSphere = currentSphere;
+                closestObject = SPHERE;
+            }
+        }
+    }
+    size_t numOfTriangles = scene -> numOfTriangles;
+    for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
+        Triangle* currentTriangle = scene -> triangles[triangleIndex];
+        float t = currentTriangle -> indices -> intersectRay(ray);
+        if (t > 0.0f) {
+            if (tMin > t) {
+                // t < tMin
+                tMin = t;
+                closestTriangle = currentTriangle;
+                closestObject = TRIANGLE;
+            }
+        }
+    }
+    size_t numOfMeshes = scene -> numOfMeshes;
+    for (size_t meshIndex = 0; meshIndex < numOfMeshes; meshIndex++) {
+        Mesh* currentMesh = scene -> meshes[meshIndex];
+        size_t numOfFaces = currentMesh -> numOfFaces;
+        for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
+            Face* currentFace = currentMesh -> faces[faceIndex];;
+            float t = currentFace -> intersectRay(ray);
+            if (t > 0.0f) {
+                if (t < tMin) {
+                    // t < tMin
+                    tMin = t;
+                    closestMeshFace = currentFace;
+                    closestMesh = currentMesh;
+                    closestObject = MESH;
                 }
             }
+        }
+    }
+    if (closestObject != NONE) {
+        Material* currentMaterial;
+        Vec3 currentNormal;
+        Vec3 intersectionPoint = Vec3(*(ray -> e) + *(ray -> d) * tMin); 
+        if (closestObject == SPHERE && closestSphere != nullptr) {
+            currentMaterial = closestSphere -> material;
+            currentNormal = intersectionPoint - *(closestSphere -> center);
+        } else if (closestObject == TRIANGLE && closestTriangle != nullptr) {
+            currentMaterial = closestTriangle -> material;
+            currentNormal = *(closestTriangle -> indices -> normal);
+        } else if (closestObject == MESH && closestMesh != nullptr && closestMeshFace != nullptr) {
+            currentMaterial = closestMesh -> material;
+            currentNormal = *(closestMeshFace -> normal);
+        }
+        currentNormal.normalize();
+        // ambient
+        float kr = scene -> ambientLight -> x;
+        float kg = scene -> ambientLight -> y;
+        float kb = scene -> ambientLight -> z;
+        float ir = currentMaterial -> ambientReflectance -> x;
+        float ig = currentMaterial -> ambientReflectance -> y;
+        float ib = currentMaterial -> ambientReflectance -> z;
+        // ambient to rgb
+        double red = kr * ir;
+        double green = kg * ig;
+        double blue = kb * ib;
+        // shading for each light
+        for (size_t lightIndex = 0; lightIndex < numOfLights; lightIndex++) {
+            // light
+            bool isShadow = false;
+            PointLight* currentLight = scene -> lights[lightIndex];
+            Vec3 wi = *currentLight -> pos - intersectionPoint;
+            float wiLength = wi.getLength();
+            wi.normalize(); 
+            // == wi / wi.getLength() 
+            // shadow ray == x + t * wi
+            // x + wi * wiLen == light
+            Vec3 v = intersectionPoint + wi * (scene -> shadowRayEpsilon);
+            Ray* shadowRay = new Ray(v, wi, false); //not primary ray
+            for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
+                Sphere* currentSphere = scene -> spheres[sphereIndex];
+                float tShadow = currentSphere -> intersectRay(shadowRay);
+        
+                if (tShadow > 0.0f && tShadow < wiLength) {
+                    isShadow = true;
+                    break;     
+                }
+            }
+            if (isShadow) {
+                continue;
+            }
+            
             size_t numOfTriangles = scene -> numOfTriangles;
             for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
                 Triangle* currentTriangle = scene -> triangles[triangleIndex];
-                float t = currentTriangle -> indices -> intersectRay(ray);
-                if (t > 0.0f || FLOAT_EQ(t,0.0f)) {
-                    if (tMin > t) {
-                        // t < tMin
-                        tMin = t;
-                        closestTriangle = currentTriangle;
-                        closestObject = TRIANGLE;
-                    }
+                float tShadow = currentTriangle -> indices -> intersectRay(shadowRay);
+                if (tShadow > 0.0f && tShadow < wiLength) {
+                    isShadow = true;
+                    break;     
                 }
+            }
+            if (isShadow) {
+                continue;
             }
             size_t numOfMeshes = scene -> numOfMeshes;
             for (size_t meshIndex = 0; meshIndex < numOfMeshes; meshIndex++) {
@@ -104,141 +179,81 @@ void shade (Scene* scene, Image image, Camera* currentCam, int imageWidth, int i
                 size_t numOfFaces = currentMesh -> numOfFaces;
                 for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
                     Face* currentFace = currentMesh -> faces[faceIndex];;
-                    float t = currentFace -> intersectRay(ray);
-                    if (t > 0.0f || FLOAT_EQ(t, 0.0f)) {
-                        if (t < tMin) {
-                            // t < tMin
-                            tMin = t;
-                            closestMeshFace = currentFace;
-                            closestMesh = currentMesh;
-                            closestObject = MESH;
-                        }
+                    float tShadow = currentFace -> intersectRay(shadowRay);
+                    if (tShadow > 0.0f && tShadow < wiLength) {
+                        isShadow = true;
+                        break;          
                     }
                 }
             }
-            if (closestObject != NONE) {
-                Material* currentMaterial;
-                Vec3 currentNormal;
-                Vec3 intersectionPoint = Vec3(*(ray -> e) + *(ray -> d) * tMin); 
-                if (closestObject == SPHERE && closestSphere != nullptr) {
-                    currentMaterial = closestSphere -> material;
-                    currentNormal = intersectionPoint - *(closestSphere -> center);
-                } else if (closestObject == TRIANGLE && closestTriangle != nullptr) {
-                    currentMaterial = closestTriangle -> material;
-                    currentNormal = *(closestTriangle -> indices -> normal);
-                } else if (closestObject == MESH && closestMesh != nullptr && closestMeshFace != nullptr) {
-                    currentMaterial = closestMesh -> material;
-                    currentNormal = *(closestMeshFace -> normal);
-                }
-                currentNormal.normalize();
-                // ambient
-                float kr = scene -> ambientLight -> x;
-                float kg = scene -> ambientLight -> y;
-                float kb = scene -> ambientLight -> z;
-                float ir = currentMaterial -> ambientReflectance -> x;
-                float ig = currentMaterial -> ambientReflectance -> y;
-                float ib = currentMaterial -> ambientReflectance -> z;
-                // ambient to rgb
-                double red = kr * ir;
-                double green = kg * ig;
-                double blue = kb * ib;
-                // shading for each light
-                for (size_t lightIndex = 0; lightIndex < numOfLights; lightIndex++) {
-                    // light
-                    bool isShadow = false;
-                    PointLight* currentLight = scene -> lights[lightIndex];
-                    Vec3 wi = *currentLight -> pos - intersectionPoint;
-                    float wiLength = wi.getLength();
-                    wi.normalize(); 
-                    // == wi / wi.getLength() 
-                    // shadow ray == x + t * wi
-                    // x + wi * wiLen == light
-                    Vec3 v = intersectionPoint + wi * (scene -> shadowRayEpsilon);
-                    Ray* shadowRay = new Ray(v, wi);
-                    for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
-                        Sphere* currentSphere = scene -> spheres[sphereIndex];
-                        float tShadow = currentSphere -> intersectRay(shadowRay);
-                
-                        if (tShadow > 0.0f && tShadow < wiLength) {
-                            isShadow = true;
-                            break;     
-                        }
-                    }
-                    if (isShadow) {
-                        continue;
-                    }
-                    
-                    size_t numOfTriangles = scene -> numOfTriangles;
-                    for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
-                        Triangle* currentTriangle = scene -> triangles[triangleIndex];
-                        float tShadow = currentTriangle -> indices -> intersectRay(shadowRay);
-                        if (tShadow > 0.0f && tShadow < wiLength) {
-                            isShadow = true;
-                            break;     
-                        }
-                    }
-                    if (isShadow) {
-                        continue;
-                    }
-                    size_t numOfMeshes = scene -> numOfMeshes;
-                    for (size_t meshIndex = 0; meshIndex < numOfMeshes; meshIndex++) {
-                        Mesh* currentMesh = scene -> meshes[meshIndex];
-                        size_t numOfFaces = currentMesh -> numOfFaces;
-                        for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
-                            Face* currentFace = currentMesh -> faces[faceIndex];;
-                            float tShadow = currentFace -> intersectRay(shadowRay);
-                            if (tShadow > 0.0f && tShadow < wiLength) {
-                                isShadow = true;
-                                break;          
-                            }
-                        }
-                    }
-                    if (isShadow) {
-                        continue;
-                    }
-                    // diffuse
-                    float costheta = std::max(0.0f, wi.dot(currentNormal));
-                    float distanceSquare = intersectionPoint.distanceSquare(*(currentLight -> pos)); 
-                    float rCoef = currentMaterial -> diffuseReflectance -> x;
-                    float gCoef = currentMaterial -> diffuseReflectance -> y;
-                    float bCoef = currentMaterial -> diffuseReflectance -> z;
-                    float rIntensity = currentLight -> intensity -> x;
-                    float gIntensity = currentLight -> intensity -> y;
-                    float bIntensity = currentLight -> intensity -> z; 
-                    float Er = rIntensity / distanceSquare;
-                    float Eg = gIntensity / distanceSquare;
-                    float Eb = bIntensity / distanceSquare;
-                    // diffuse to rgb
-                    red += rCoef * costheta* Er;
-                    green += gCoef * costheta* Eg;
-                    blue += bCoef * costheta* Eb;
+            if (isShadow) {
+                continue;
+            }
+            // diffuse
+            float costheta = std::max(0.0f, wi.dot(currentNormal));
+            float distanceSquare = intersectionPoint.distanceSquare(*(currentLight -> pos)); 
+            float rCoef = currentMaterial -> diffuseReflectance -> x;
+            float gCoef = currentMaterial -> diffuseReflectance -> y;
+            float bCoef = currentMaterial -> diffuseReflectance -> z;
+            float rIntensity = currentLight -> intensity -> x;
+            float gIntensity = currentLight -> intensity -> y;
+            float bIntensity = currentLight -> intensity -> z; 
+            float Er = rIntensity / distanceSquare;
+            float Eg = gIntensity / distanceSquare;
+            float Eb = bIntensity / distanceSquare;
+            // diffuse to rgb
+            red += rCoef * costheta* Er;
+            green += gCoef * costheta* Eg;
+            blue += bCoef * costheta* Eb;
 
-                    // specular
-                    Vec3 wo = *(currentCam -> pos) - intersectionPoint;
-                    wo.normalize();
-                    Vec3 wio = wi + wo;
-                    Vec3 h = wio / wio.getLength();
-                    h.normalize();
-                    float cosalpha = std::max(0.0f, currentNormal.dot(h));
-                    cosalpha = std::pow(cosalpha, currentMaterial -> phongExponent);
-                    // specular to rgb
-                    red += (currentMaterial -> specularReflectance -> x) * cosalpha * Er;
-                    green += (currentMaterial -> specularReflectance -> y) * cosalpha * Eg;
-                    blue += (currentMaterial -> specularReflectance -> z) * cosalpha * Eb;
-
+            // specular
+            Vec3 wo = *(currentCam -> pos) - intersectionPoint;
+            wo.normalize();
+            Vec3 wio = wi + wo;
+            Vec3 h = wio / wio.getLength();
+            h.normalize();
+            float cosalpha = std::max(0.0f, currentNormal.dot(h));
+            cosalpha = std::pow(cosalpha, currentMaterial -> phongExponent);
+            // specular to rgb
+            red += (currentMaterial -> specularReflectance -> x) * cosalpha * Er;
+            green += (currentMaterial -> specularReflectance -> y) * cosalpha * Eg;
+            blue += (currentMaterial -> specularReflectance -> z) * cosalpha * Eb;
+            
+            if (currentDepth < scene -> maxRecursionDepth) {
+                if (currentMaterial -> isMirror) {
                     // mirror
                     Vec3 wr = wo * -1 + currentNormal * 2 * (currentNormal.dot(wo)); 
                     wr.normalize();
-                    red += (currentMaterial -> mirrorReflectance -> x) * wr.x;
-                    green += (currentMaterial -> mirrorReflectance -> y) * wr.y;
-                    blue += (currentMaterial -> mirrorReflectance -> z) * wr.z;
-
-                    // Li -> received radiance
+                    Vec3 intersectionWithEps = intersectionPoint + wr * (scene -> shadowRayEpsilon);
+                    Ray* mirrorRay = new Ray(intersectionWithEps, wr, false);
+                    Color color = getColor(mirrorRay, currentDepth+1, scene, currentCam);
+                    red += (currentMaterial -> mirrorReflectance -> x) * color.r;
+                    green += (currentMaterial -> mirrorReflectance -> y) * color.g;
+                    blue += (currentMaterial -> mirrorReflectance -> z) * color.b;
                 }
-                image[colorIndex] = red > 255 ? 255 : round(red);
-                image[colorIndex+1] = green > 255 ? 255 : round(green);
-                image[colorIndex+2] = blue > 255 ? 255 : round(blue);
-            }
+            } 
+        }
+        unsigned char finalRed = red > 255 ? 255 : (unsigned char) round(red);
+        unsigned char finalGreen = green > 255 ? 255 : (unsigned char) round(green);
+        unsigned char finalBlue = blue > 255 ? 255 : (unsigned char) round(blue);
+        return Color(finalRed, finalGreen, finalBlue);
+    } else { // no intersection
+        return Color(0, 0, 0);
+    }
+    
+}
+
+void shade (Scene* scene, Image image, Camera* currentCam, int imageWidth, int imageHeight) {
+    size_t y = incrementAndQueryRow();
+    while (y < imageHeight){
+        size_t colorIndex = y*imageWidth*3;
+        Vec3 sv = *(currentCam -> v) * (y*(currentCam->pixelH) + (currentCam -> halfPixelH));
+        for (size_t x = 0; x < imageWidth; x++) {
+            Ray* ray = new Ray(x, y, currentCam, sv, true); // true for primary
+            Color color = getColor(ray, 0, scene, currentCam);
+            image[colorIndex] = color.r;
+            image[colorIndex+1] = color.g;
+            image[colorIndex+2] = color.b;
             colorIndex += 3;
             delete ray;
         }

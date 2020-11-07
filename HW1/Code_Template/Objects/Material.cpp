@@ -6,6 +6,7 @@ Material::Material(Vec3 &ambient, Vec3 &diff, Vec3 &spec, Vec3 &mirr, int phong)
     diffuseReflectance = new Vec3(diff);
     specularReflectance = new Vec3(spec);
     mirrorReflectance = new Vec3(mirr);
+    isMirror = !(FLOAT_EQ(mirrorReflectance -> x, 0.0f) && FLOAT_EQ(mirrorReflectance -> y, 0.0f) && FLOAT_EQ(mirrorReflectance -> z, 0.0f));
     phongExponent = phong;
 }
 Material::Material(const Material &a) {
@@ -13,6 +14,7 @@ Material::Material(const Material &a) {
     diffuseReflectance = new Vec3(*(a.diffuseReflectance));
     specularReflectance = new Vec3(*(a.specularReflectance));
     mirrorReflectance = new Vec3(*(a.mirrorReflectance));
+    isMirror = !(FLOAT_EQ(mirrorReflectance -> x, 0.0f) && FLOAT_EQ(mirrorReflectance -> y, 0.0f) && FLOAT_EQ(mirrorReflectance -> z, 0.0f));
     phongExponent = a.phongExponent;
 }
 

@@ -5,19 +5,32 @@ Color::Color(){
     b = 0;
 }
 
-Color::Color(int red, int green, int blue) {
+Color::Color(unsigned char red, unsigned char green, unsigned char blue) {
     r = red;
     g = green;
     b = blue;
-    this -> normalizeColor();
+    // this -> normalizeColor();
 }
 
-Color::Color(Color &param) {
+Color::Color(const Color &param) {
     r = param.r;
     g = param.g;
     b = param.b;
-    this -> normalizeColor();
+    // this -> normalizeColor();
 }
+void Color::normalizeColor(){
+
+    if (r > 255.0f) {
+        r = (unsigned char) 255;
+    }
+    if (g > 255.0f) {
+        g = (unsigned char) 255;
+    }
+    if (b > 255.0f) {
+        b = (unsigned char) 255;
+    }
+}
+
 Color::~Color() {
 
 }
