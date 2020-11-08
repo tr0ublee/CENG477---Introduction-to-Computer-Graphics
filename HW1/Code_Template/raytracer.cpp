@@ -55,7 +55,7 @@ void initImage(Image image, Scene* scene, int width, int height) {
 
 int incrementAndQueryRow() {
     std::lock_guard<std::mutex> lock(rowMutex);
-    return ++operatingRow;
+    return operatingRow++;
 }
 Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
     Sphere* closestSphere = nullptr;
@@ -158,7 +158,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
                 Sphere* currentSphere = scene -> spheres[sphereIndex];
                 float tShadow = currentSphere -> intersectRay(shadowRay);
         
-                if ((tShadow > 0.0f || FLOAT_EQ(tShadow, 0.0f)) && tShadow < wiLength) {
+                if (tShadow > 0.0f && tShadow < wiLength) {
                     isShadow = true;
                     break;     
                 }
@@ -171,7 +171,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
             for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
                 Triangle* currentTriangle = scene -> triangles[triangleIndex];
                 float tShadow = currentTriangle -> indices -> intersectRay(shadowRay);
-                if ((tShadow > 0.0f || FLOAT_EQ(tShadow, 0.0f)) && tShadow < wiLength) {
+                if (tShadow > 0.0f && tShadow < wiLength) {
                     isShadow = true;
                     break;     
                 }
@@ -186,7 +186,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
                 for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
                     Face* currentFace = currentMesh -> faces[faceIndex];;
                     float tShadow = currentFace -> intersectRay(shadowRay);
-                    if ((tShadow > 0.0f || FLOAT_EQ(tShadow, 0.0f)) && tShadow < wiLength) {
+                    if (tShadow > 0.0f && tShadow < wiLength) {
                         isShadow = true;
                         break;          
                     }
