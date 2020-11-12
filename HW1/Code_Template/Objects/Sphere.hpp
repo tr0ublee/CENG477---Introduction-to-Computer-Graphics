@@ -23,10 +23,10 @@ class Sphere {
 
         }
 
-        inline float intersectRay(Ray* ray) {
-            float A,B,C; //constants for the quadratic function	
-            float delta;
-            float t,t1,t2;
+        inline double intersectRay(Ray* ray) {
+            double A,B,C; //constants for the quadratic function	
+            double delta;
+            double t,t1,t2;
 
             float X = (ray -> e -> x - center -> x);
             float Y = (ray -> e -> y - center -> y);
@@ -36,7 +36,7 @@ class Sphere {
             float rDY = ray -> d -> y;
             float rDZ = ray -> d -> z;
 
-            float tThreshold = ray -> minTValue;
+            double tThreshold = ray -> minTValue;
 
             C = X * X + Y * Y + Z * Z- r * r;
 
@@ -67,7 +67,7 @@ class Sphere {
                         t = t1;
                 }
                 else {
-                        t = -1.0f; // time returned negative. so it doesnt intersect
+                        t = -1.0; // time returned negative. so it doesnt intersect
                 }
             }
             return t;

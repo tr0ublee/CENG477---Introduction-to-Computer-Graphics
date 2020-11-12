@@ -68,7 +68,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
     size_t numOfSpheres = scene -> numOfSpheres;
     for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
         Sphere* currentSphere = scene -> spheres[sphereIndex];
-        float t = currentSphere -> intersectRay(ray);
+        double t = currentSphere -> intersectRay(ray);
         if (t > 0.0) {
             if (tMin > t) {
                 // t < tMin
@@ -81,7 +81,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
     size_t numOfTriangles = scene -> numOfTriangles;
     for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
         Triangle* currentTriangle = scene -> triangles[triangleIndex];
-        float t = currentTriangle -> indices -> intersectRay(ray);
+        double t = currentTriangle -> indices -> intersectRay(ray);
         if (t > 0.0) {
             if (tMin > t) {
                 // t < tMin
@@ -97,7 +97,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
         size_t numOfFaces = currentMesh -> numOfFaces;
         for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
             Face* currentFace = currentMesh -> faces[faceIndex];;
-            float t = currentFace -> intersectRay(ray);
+            double t = currentFace -> intersectRay(ray);
             if (t > 0.0) {
                 if (t < tMin) {
                     // t < tMin
@@ -156,7 +156,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
             shadowRay -> d -> normalize();
             for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
                 Sphere* currentSphere = scene -> spheres[sphereIndex];
-                float tShadow = currentSphere -> intersectRay(shadowRay);
+                double tShadow = currentSphere -> intersectRay(shadowRay);
         
                 if (tShadow > 0.0 && tShadow < wiLength) {
                     isShadow = true;
@@ -171,7 +171,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
             size_t numOfTriangles = scene -> numOfTriangles;
             for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
                 Triangle* currentTriangle = scene -> triangles[triangleIndex];
-                float tShadow = currentTriangle -> indices -> intersectRay(shadowRay);
+                double tShadow = currentTriangle -> indices -> intersectRay(shadowRay);
                 if (tShadow > 0.0 && tShadow < wiLength) {
                     isShadow = true;
                     break;     
@@ -187,7 +187,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
                 size_t numOfFaces = currentMesh -> numOfFaces;
                 for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
                     Face* currentFace = currentMesh -> faces[faceIndex];;
-                    float tShadow = currentFace -> intersectRay(shadowRay);
+                    double tShadow = currentFace -> intersectRay(shadowRay);
                     if (tShadow > 0.0 && tShadow < wiLength) {
                         isShadow = true;
                         break;          
