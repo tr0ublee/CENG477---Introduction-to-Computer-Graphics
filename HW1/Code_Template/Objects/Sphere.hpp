@@ -50,11 +50,11 @@ class Sphere {
                 
             delta = B * B - 4 * A * C;
 
-            if (delta < 0.0f) {
+            if (delta < 0.0) {
                 return -1.0;
             }
 
-            else if (delta - 0.0f < 0.000001) {
+            else if (FLOAT_EQ(delta, 0.0)) {
                 t = -B / (2*A);
             }
             else {
