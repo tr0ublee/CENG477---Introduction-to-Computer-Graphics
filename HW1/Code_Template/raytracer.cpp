@@ -1,5 +1,3 @@
-#pragma GCC optimization ("unroll-loops")
-#pragma GCC target("avx,avx2,fma")
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -27,7 +25,7 @@ typedef enum closestObject {
     NONE
 } ClosestObject;
 
-int operatingRow = 0;
+int operatingRow = -1;
 std::mutex rowMutex;
 
 void initScene(const char* path, Scene** scene) {
@@ -55,7 +53,8 @@ void initImage(Image image, Scene* scene, int width, int height) {
 
 int incrementAndQueryRow() {
     std::lock_guard<std::mutex> lock(rowMutex);
-    return operatingRow++;
+    ++operatingRow;
+    return operatingRow;
 }
 Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
     Sphere* closestSphere = nullptr;
@@ -70,7 +69,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
     for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
         Sphere* currentSphere = scene -> spheres[sphereIndex];
         float t = currentSphere -> intersectRay(ray);
-        if (t > 0.0f) {
+        if (t > 0.0) {
             if (tMin > t) {
                 // t < tMin
                 tMin = t;
@@ -83,7 +82,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
     for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
         Triangle* currentTriangle = scene -> triangles[triangleIndex];
         float t = currentTriangle -> indices -> intersectRay(ray);
-        if (t > 0.0f) {
+        if (t > 0.0) {
             if (tMin > t) {
                 // t < tMin
                 tMin = t;
@@ -99,7 +98,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
         for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
             Face* currentFace = currentMesh -> faces[faceIndex];;
             float t = currentFace -> intersectRay(ray);
-            if (t > 0.0f) {
+            if (t > 0.0) {
                 if (t < tMin) {
                     // t < tMin
                     tMin = t;
@@ -154,16 +153,18 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
             // x + wi * wiLen == light
             Vec3 v = intersectionPoint + wi * (scene -> shadowRayEpsilon);
             Ray* shadowRay = new Ray(v, wi, false); //not primary ray
+            shadowRay -> d -> normalize();
             for (size_t sphereIndex = 0; sphereIndex < numOfSpheres; sphereIndex++) {
                 Sphere* currentSphere = scene -> spheres[sphereIndex];
                 float tShadow = currentSphere -> intersectRay(shadowRay);
         
-                if (tShadow > 0.0f && tShadow < wiLength) {
+                if (tShadow > 0.0 && tShadow < wiLength) {
                     isShadow = true;
                     break;     
                 }
             }
             if (isShadow) {
+                delete shadowRay;
                 continue;
             }
             
@@ -171,12 +172,13 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
             for (size_t triangleIndex = 0; triangleIndex < numOfTriangles; triangleIndex++) {
                 Triangle* currentTriangle = scene -> triangles[triangleIndex];
                 float tShadow = currentTriangle -> indices -> intersectRay(shadowRay);
-                if (tShadow > 0.0f && tShadow < wiLength) {
+                if (tShadow > 0.0 && tShadow < wiLength) {
                     isShadow = true;
                     break;     
                 }
             }
             if (isShadow) {
+                delete shadowRay;
                 continue;
             }
             size_t numOfMeshes = scene -> numOfMeshes;
@@ -186,13 +188,14 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
                 for (size_t faceIndex = 0; faceIndex < numOfFaces; faceIndex++) {
                     Face* currentFace = currentMesh -> faces[faceIndex];;
                     float tShadow = currentFace -> intersectRay(shadowRay);
-                    if (tShadow > 0.0f && tShadow < wiLength) {
+                    if (tShadow > 0.0 && tShadow < wiLength) {
                         isShadow = true;
                         break;          
                     }
                 }
             }
             if (isShadow) {
+                delete shadowRay;
                 continue;
             } 
             // diffuse
@@ -222,6 +225,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
             red += (currentMaterial -> specularReflectance -> x) * cosalpha * Er;
             green += (currentMaterial -> specularReflectance -> y) * cosalpha * Eg;
             blue += (currentMaterial -> specularReflectance -> z) * cosalpha * Eb; 
+            delete shadowRay;
         } 
         if (currentDepth < scene -> maxRecursionDepth) {
             if (currentMaterial -> isMirror) {
@@ -230,10 +234,12 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
                 wr.normalize();
                 Vec3 intersectionWithEps = intersectionPoint + wr * (scene -> shadowRayEpsilon);
                 Ray* mirrorRay = new Ray(intersectionWithEps, wr, false);
+                mirrorRay -> d -> normalize();
                 Vec3 color = getColor(mirrorRay, currentDepth+1, scene, currentCam);
                 red += (currentMaterial -> mirrorReflectance -> x) * color.x;
                 green += (currentMaterial -> mirrorReflectance -> y) * color.y;
                 blue += (currentMaterial -> mirrorReflectance -> z) * color.z;
+                delete mirrorRay;
             }
         } 
         return Vec3(red, green, blue);
@@ -250,13 +256,35 @@ void shade (Scene* scene, Image image, Camera* currentCam, int imageWidth, int i
         Vec3 sv = *(currentCam -> v) * (y*(currentCam->pixelH) + (currentCam -> halfPixelH));
         for (size_t x = 0; x < imageWidth; x++) {
             Ray* ray = new Ray(x, y, currentCam, sv, true); // true for primary
+            ray -> d -> normalize();
             Vec3 color = getColor(ray, 0, scene, currentCam);
             double red = color.x;
             double green = color.y;
             double blue = color.z;
-            image[colorIndex] = red > 255 ? 255 : (unsigned char) round(red);
-            image[colorIndex+1] = green > 255 ? 255 : (unsigned char) round(green);
-            image[colorIndex+2] = blue > 255 ? 255 : (unsigned char) round(blue);
+            if (red < 0) {
+                image[colorIndex] = 0;
+            } else if (red > 255.0) {
+                image[colorIndex] = 255;
+            } else {
+                image[colorIndex] = (unsigned char) round(red);
+            }
+
+            if (green < 0) {
+                image[colorIndex+1] = 0;
+            } else if (green > 255.0) {
+                image[colorIndex+1] = 255;
+            } else {
+                image[colorIndex+1] = (unsigned char) round(green);
+            }
+
+            if (blue < 0) {
+                image[colorIndex+2] = 0;
+            } else if (blue > 255.0) {
+                image[colorIndex+2] = 255;
+            } else {
+                image[colorIndex+2] = (unsigned char) round(blue);
+            }
+
             colorIndex += 3;
             delete ray;
         }
@@ -278,14 +306,14 @@ int main(int argc, char* argv[]){
     initScene(argv[1], &scene);
     int numOfCams = scene -> numOfCameras;
     for (size_t i = 0; i < numOfCams; i++) {
-        operatingRow = 0;
+        operatingRow = -1;
         unsigned int cpuCoreNumber = thread::hardware_concurrency();
         std::vector<std::thread*> threads(cpuCoreNumber);
         Camera* currentCam = scene -> cameras[i];
         int imageWidth = currentCam -> imageWidth;
         int imageHeight = currentCam -> imageHeight;
         Image image = (Image) std::malloc(sizeof(unsigned char)*(imageWidth*imageHeight*3)); // [RGB | RGB | RGB...]
-        initImage(image, scene, imageWidth, imageHeight);
+        // initImage(image, scene, imageWidth, imageHeight);
         if (cpuCoreNumber) {
             for (int threadIndex = 0; threadIndex < cpuCoreNumber; threadIndex++) {
                 threads[threadIndex] = new std::thread(shade, scene, image, currentCam, imageWidth, imageHeight);
@@ -302,6 +330,7 @@ int main(int argc, char* argv[]){
             shade(scene, image, currentCam, imageWidth, imageHeight);
         }
         write_ppm((currentCam -> imageName).c_str(), image, imageWidth, imageHeight);
+        free(image);
     }
     /** Time **/
     end = std::chrono::system_clock::now();

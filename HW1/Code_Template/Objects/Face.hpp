@@ -49,16 +49,17 @@ class Face{
             delete normal;
         }
 
-        inline float intersectRay(Ray* ray) {
-            float g,h,i,j,k,l;
-            float beta,gamma,t;
-            float tThreshold = ray -> minTValue;
+        inline double intersectRay(Ray* ray) {
+            double g,h,i,j,k,l;
+            double beta,gamma;
+            double t;
+            double tThreshold = ray -> minTValue;
             
-            float eimhf,gfmdi,dhmeg,akmjb,jcmal,blmkc;
+            double eimhf,gfmdi,dhmeg,akmjb,jcmal,blmkc;
 
-            float M;
+            double M;
             
-            float dd;
+            double dd;
             
             g = ray -> d -> x;
             h = ray -> d -> y;
@@ -77,23 +78,23 @@ class Face{
 
             M = a * eimhf + b * gfmdi + c * dhmeg;
             if (M == 0) {
-                return -1.0f;
+                return -1.0;
             }
 
             t = -(f * akmjb + e * jcmal + d * blmkc) / M;
             if (t < tThreshold) {
-                return -1.0f;
+                return -1.0;
             }
 
             gamma = (i*akmjb+h*jcmal+g*blmkc)/M;
             
             if (gamma<0 || gamma>1) {
-                return -1.0f;
+                return -1.0;
             }
             beta = ( j * eimhf + k * gfmdi + l * dhmeg) / M;
             
             if (beta < 0 || beta > (1 - gamma)) {
-                return -1.0f;
+                return -1.0;
             }
             return t;
         }

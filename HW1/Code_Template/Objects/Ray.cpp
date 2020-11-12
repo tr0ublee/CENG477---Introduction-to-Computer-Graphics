@@ -7,9 +7,9 @@ Ray::Ray(size_t x, size_t y, Camera* cam, Vec3 &sv, bool isPrimary) {
     s = *(cam->q) + su - sv;
     this -> d = new Vec3(s-(*e));
     if (isPrimary) {
-        minTValue = 1.0f;
+        minTValue = 1.0;
     } else {
-        minTValue = 0.0f;
+        minTValue = 0.0;
     }
     eDynamic = false;
 }
@@ -18,9 +18,9 @@ Ray::Ray(Vec3 &a, Vec3 &b, bool isPrimary) {
     this -> e = new Vec3(a);
     this -> d = new Vec3(b);
     if (isPrimary) {
-        minTValue = 1.0f;
+        minTValue = 1.0;
     } else {
-        minTValue = 0.0f;
+        minTValue = 0.0;
     }
     eDynamic = true;
 }

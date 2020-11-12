@@ -10,7 +10,7 @@ class Ray{
 
         Vec3* e;
         Vec3* d;
-        float minTValue;
+        double minTValue;
         bool eDynamic;
 
         Ray(Vec3 &a, Vec3 &b, bool isPrimary);
