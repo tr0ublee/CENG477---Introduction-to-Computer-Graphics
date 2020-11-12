@@ -54,13 +54,23 @@ class Face{
             double beta,gamma;
             double t;
             double tThreshold = ray -> minTValue;
-            
             double eimhf,gfmdi,dhmeg,akmjb,jcmal,blmkc;
-
             double M;
             
-            double dd;
-            
+            /**
+             * a = ax - bx
+             * b = ay - by
+             * c = az - bz
+             * d = ax - cx
+             * e = ay - cy
+             * f = az - cz 
+             * g = dx
+             * h = dy;
+             * i = dz;
+             * j = ax - ox
+             * k = ay - oy
+             * l = az - oz
+            */
             g = ray -> d -> x;
             h = ray -> d -> y;
             i = ray -> d -> z;
@@ -69,15 +79,15 @@ class Face{
             k = v0 -> y - ray -> e -> y;
             l = v0 -> z - ray -> e -> z;
             
-            eimhf = e * i - h * f;
-            gfmdi = g * f - d * i;
+            eimhf = e * i - h * f; 
+            gfmdi = g * f - d * i; 
             dhmeg = d * h - e * g;
             akmjb = a * k - j * b;
             jcmal = j * c - a * l;
             blmkc = b * l - k * c;
 
             M = a * eimhf + b * gfmdi + c * dhmeg;
-            if (M == 0) {
+            if (FLOAT_EQ(M, 0.0)) {
                 return -1.0;
             }
 
