@@ -98,12 +98,12 @@ class Face{
 
             gamma = (i*akmjb+h*jcmal+g*blmkc)/M;
             
-            if (gamma<0 || gamma>1) {
+            if (gamma < 0.0 || gamma > 1.0) {
                 return -1.0;
             }
             beta = ( j * eimhf + k * gfmdi + l * dhmeg) / M;
             
-            if (beta < 0 || beta > (1 - gamma)) {
+            if (beta < 0.0 || beta > (1.0 - gamma)) {
                 return -1.0;
             }
             return t;
