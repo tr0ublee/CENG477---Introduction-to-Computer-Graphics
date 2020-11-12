@@ -4,7 +4,7 @@
 #include <iostream>
 #include <math.h>       /* sqrt */
 #define ABS(a) ((a)>0?(a):-1*(a))
-#define SENSITIVITY 0.000001
+#define SENSITIVITY 0.0000001
 #define FLOAT_EQ(a,b) (ABS(a - b) < SENSITIVITY)
 #define FLOAT_G(a,b) (a > b)
 

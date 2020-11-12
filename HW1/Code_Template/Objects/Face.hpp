@@ -87,7 +87,7 @@ class Face{
             blmkc = b * l - k * c;
 
             M = a * eimhf + b * gfmdi + c * dhmeg;
-            if (FLOAT_EQ(M, 0.0)) {
+            if (M == 0) {
                 return -1.0;
             }
 
