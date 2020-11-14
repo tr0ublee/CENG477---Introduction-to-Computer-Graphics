@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATERIAL_HPP
+#define MATERIAL_HPP
 #include "Vec3.hpp"
 
 class Material{ 
@@ -14,3 +15,4 @@ class Material{
         Material(const Material &a);
         ~Material();
 };
+#endif

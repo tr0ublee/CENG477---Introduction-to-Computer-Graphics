@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COLOR_HPP
+#define COLOR_HPP
 class Color {
 
     public:
@@ -12,3 +13,5 @@ class Color {
         void normalizeColor();
         ~Color();
 };
+
+#endif
