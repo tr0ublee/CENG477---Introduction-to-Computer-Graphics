@@ -13,7 +13,7 @@
 #include <limits>
 #include <chrono>
 
-#define INF std::numeric_limits<float>::max();
+#define INF std::numeric_limits<double>::max();
 typedef unsigned char RGB[3];
 typedef unsigned char* Image;
 using namespace std;
@@ -62,7 +62,7 @@ Vec3 getColor (Ray* ray, int currentDepth, Scene* scene, Camera* currentCam) {
     Mesh* closestMesh = nullptr;
     Face* closestMeshFace = nullptr;
     ClosestObject closestObject =  NONE;
-    float tMin = INF;
+    double tMin = INF;
     Vec3 wo;
     size_t numOfLights = scene -> numOfLights;
     size_t numOfSpheres = scene -> numOfSpheres;

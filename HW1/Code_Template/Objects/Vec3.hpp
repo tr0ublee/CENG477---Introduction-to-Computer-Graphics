@@ -55,6 +55,12 @@ class Vec3{
             float z = this -> z * c;
             return Vec3(x, y, z);
         }
+        inline Vec3 operator*(const double c) {
+            float x = this -> x * c;
+            float y = this -> y * c;
+            float z = this -> z * c;
+            return Vec3(x, y, z);
+        }
         inline Vec3 operator*(const int c) {
             float x = this -> x * c;
             float y = this -> y * c;
