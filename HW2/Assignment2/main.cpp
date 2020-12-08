@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <iomanip>
+#include "matrix.h"
+Matrix m;
 
 int main(int argc, char *argv[])
 {

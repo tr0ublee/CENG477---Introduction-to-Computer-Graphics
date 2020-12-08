@@ -13,6 +13,7 @@
 #include "scaling.h"
 #include "rotation.h"
 #include "texture.h"
+#include "matrix.h"
 
 #include <vector>
 
