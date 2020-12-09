@@ -80,6 +80,7 @@ namespace fst
                 math::Vector4f result0(v0.x, v0.y, v0.z, 1);
                 math::Vector4f result1(v1.x, v1.y, v1.z, 1);
                 math::Vector4f result2(v2.x, v2.y, v2.z, 1);
+                
                 for (auto& transformation : transformations) {
                     if (transformation.type == TRANSLATE) {
                         Translation t = translations[transformation.index];
@@ -98,17 +99,18 @@ namespace fst
                     else { 
                         Rotation r = rotations[transformation.index];
                         Matrix m = r.getRotationMatrix();
-
                         Translation t(-r.rx, -r.ry, -r.rz);
-
-                        result0 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result0;
-                        result1 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result1;
-                        result2 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result2; 
+                        Matrix tMatrix  = t.getTranslationMatrix();
+                        Matrix tBackMatrix = t.getInverseTranslationMatrix();
+                        result0 = tBackMatrix * m * tMatrix * result0;
+                        result1 = tBackMatrix * m * tMatrix * result1;
+                        result2 = tBackMatrix * m * tMatrix * result2; 
                     }
                 }
                 v0 = result0;
                 v1 = result1;
                 v2 = result2;
+                
                 /** Transformation End **/
 
                 triangles.push_back(Triangle(
@@ -150,9 +152,11 @@ namespace fst
                     Rotation r = rotations[transformation.index];
                     Matrix m = r.getRotationMatrix();
                     Translation t(-r.rx, -r.ry, -r.rz);
-                    result0 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result0;
-                    result1 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result1;
-                    result2 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result2; 
+                    Matrix tMatrix  = t.getTranslationMatrix();
+                    Matrix tBackMatrix = t.getInverseTranslationMatrix();
+                    result0 = tBackMatrix * m * tMatrix * result0;
+                    result1 = tBackMatrix * m * tMatrix * result1;
+                    result2 = tBackMatrix * m * tMatrix * result2; 
                 }
             }
             v0 = result0;
