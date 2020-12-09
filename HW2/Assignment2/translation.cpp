@@ -6,15 +6,14 @@ namespace fst
         : tx(tx), ty(ty), tz(tz)
     {
     }
-    /**
-     * (T(S(TP)))
-     * 
-     * translate(-rotate(translate());
-     * -T * S * T * P
-     * */
-    math::Vector4f Translation::translate(math::Vector3f& vertex3f) {
+
+    Matrix Translation::getTranslationMatrix() {
         Matrix translationMatrix(tx, ty, tz, TRANSLATE);
-        math::Vector4f vertex4f(vertex3f.x, vertex3f.y, vertex3f.z, 1);
-        return translationMatrix * vertex4f;
+        return translationMatrix;
+    }
+
+    Matrix Translation::getInverseTranslationMatrix() {
+        Matrix translationMatrix(-tx, -ty, -tz, TRANSLATE);
+        return translationMatrix;
     }
 } // namespace fst

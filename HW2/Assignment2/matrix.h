@@ -147,10 +147,7 @@ class Matrix{
         three = Matrix(u.x, u.y, u.z, Z, angle)
         three * two * one
         */
-        Matrix() {
-
-
-        }
+        Matrix() {}
         Matrix (float normX, float normY, float normZ, AXIS axis, float angle=0) {
             if (axis == X) {
                 this -> getRotationX(normX, normY, normZ);

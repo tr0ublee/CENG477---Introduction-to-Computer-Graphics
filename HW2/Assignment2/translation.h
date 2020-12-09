@@ -11,6 +11,7 @@ namespace fst
     public:
         float tx, ty, tz;
         Translation(float tx, float ty, float tz);
-        math::Vector4f translate(math::Vector3f& vertex);
+        Matrix getTranslationMatrix();
+        Matrix getInverseTranslationMatrix();
     };
 } // namespace fst
