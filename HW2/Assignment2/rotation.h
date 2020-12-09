@@ -9,8 +9,8 @@ namespace fst
     class Rotation
     {
     public:
-        float angle, x, y, z;
-        Rotation(float angle, float x, float y, float z);
-        Matrix getRotationMatrix(math::Vector3f& vertex);
+        float angle, rx, ry, rz;
+        Rotation(float angle, float rx, float ry, float rz);
+        Matrix getRotationMatrix();
     };
 } // namespace fst
