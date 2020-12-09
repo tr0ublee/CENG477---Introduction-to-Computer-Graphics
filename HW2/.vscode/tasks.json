@@ -1,0 +1,34 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++ build active file",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-g",
+                "${workspaceRoot}/Assignment2/*.cpp",
+                "-o",
+                "${workspaceRoot}/Assignment2/raytracer",
+                "-O3",
+                "-std=c++11",
+                "-march=native",
+                "-ljpeg",
+                "-lm",
+                "-lpthread",
+                
+            ],
+            "options": {
+                "cwd": "/usr/bin"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Generated task by Debugger"
+        }
+    ],
+    "version": "2.0.0"
+}

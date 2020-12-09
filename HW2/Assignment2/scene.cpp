@@ -1,6 +1,9 @@
 #include "scene.h"
 #include <iostream>
 #include <sstream>
+#include <iomanip>
+#include "jpeg.h"
+#include <string.h>
 
 using namespace std;
 
@@ -211,6 +214,16 @@ namespace fst
             center3F = center;
             spheres.push_back(Sphere(center3F,
                 r, sphere.material_id));
+        }
+
+        for (auto& texture : parser.textures) {
+            int w, h;
+            char* name = strdup(texture.imageName.c_str());
+            read_jpeg_header(name, w, h);
+            unsigned char* jpegImage = new unsigned char [w * h * 3];
+            read_jpeg(name, jpegImage, w, h);
+            Texture pushed = Texture(w, h, jpegImage, texture.imageName, texture.interpolation, texture.decalMode, texture.appearance);
+            textures.push_back(pushed);
         }
 
         background_color = math::Vector3f(parser.background_color.x, parser.background_color.y, parser.background_color.z);

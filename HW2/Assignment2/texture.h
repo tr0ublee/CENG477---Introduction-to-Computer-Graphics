@@ -14,6 +14,8 @@ namespace fst
                 std::string interpolation,
                 std::string decalMode,
                 std::string appearance);
+        // Texture(const Texture& text);
+        ~Texture();
 
     private:
         int m_width;

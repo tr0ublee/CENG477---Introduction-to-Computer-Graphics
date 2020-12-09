@@ -20,4 +20,11 @@ namespace fst
         m_appearance(appearance)
   {
   }
+
+  // Texture::Texture(const Texture& text) {
+    
+  // }
+
+  Texture::~Texture() {
+  }
 } // namespace fst
