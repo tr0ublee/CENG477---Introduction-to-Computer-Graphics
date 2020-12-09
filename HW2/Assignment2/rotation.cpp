@@ -19,6 +19,9 @@ namespace fst
         Matrix rotationMatrixY(normX, normY, normZ, Y);
         Matrix rotationMatrixZ(normX, normY, normZ, Z, angle);
         return rotationMatrixZ * rotationMatrixY * rotationMatrixX;
+        // inverseRotationMatrixX(normX, -normY, normZ);
+        // inverseRotationMatrixY(-normX, normY, normZ);
+        // inverseRotationMatrixX * inverseRotationMatrixY * rotationMatrixZ * rotationMatrixY * rotationMatrixX
     }
 
 }
