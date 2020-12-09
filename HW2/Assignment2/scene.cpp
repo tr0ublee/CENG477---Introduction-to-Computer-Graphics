@@ -1,5 +1,6 @@
 #include "scene.h"
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -87,24 +88,22 @@ namespace fst
                         result1 = m * result1;
                         result2 = m * result2;
                     }
-                    else if (transformation.type == SCALE) { /*
+                    else if (transformation.type == SCALE) { 
                         Scaling s = scalings[transformation.index];
                         Matrix m = s.getScalingMatrix();
                         result0 = m * result0;
                         result1 = m * result1;
-                        result2 = m * result2; */
+                        result2 = m * result2; 
                     }
-                    else { /*
+                    else { 
                         Rotation r = rotations[transformation.index];
                         Matrix m = r.getRotationMatrix();
 
-                        Translation t0(v0.x, v0.y, v0.z);
-                        Translation t1(v1.x, v1.y, v1.z);
-                        Translation t2(v2.x, v2.y, v2.z);
+                        Translation t(-r.rx, -r.ry, -r.rz);
 
-                        result0 = t0.getInverseTranslationMatrix() * m * t0.getTranslationMatrix() * result0;
-                        result1 = t1.getInverseTranslationMatrix() * m * t1.getTranslationMatrix() * result1;
-                        result2 = t2.getInverseTranslationMatrix() * m * t2.getTranslationMatrix() * result2; */
+                        result0 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result0;
+                        result1 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result1;
+                        result2 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result2; 
                     }
                 }
                 v0 = result0;
@@ -117,7 +116,6 @@ namespace fst
                     v1 - v0,
                     v2 - v0));
             }
-            
             meshes.push_back(Mesh(std::move(triangles), mesh.material_id));
         }
 
@@ -142,24 +140,20 @@ namespace fst
                     result1 = m * result1;
                     result2 = m * result2;
                 }
-                else if (transformation.type == SCALE) { /*
+                else if (transformation.type == SCALE) { 
                     Scaling s = scalings[transformation.index];
                     Matrix m = s.getScalingMatrix();
                     result0 = m * result0;
                     result1 = m * result1;
-                    result2 = m * result2; */
+                    result2 = m * result2; 
                 }
-                else { /*
+                else { 
                     Rotation r = rotations[transformation.index];
                     Matrix m = r.getRotationMatrix();
-
-                    Translation t0(v0.x, v0.y, v0.z);
-                    Translation t1(v1.x, v1.y, v1.z);
-                    Translation t2(v2.x, v2.y, v2.z);
-
-                    result0 = t0.getInverseTranslationMatrix() * m * t0.getTranslationMatrix() * result0;
-                    result1 = t1.getInverseTranslationMatrix() * m * t1.getTranslationMatrix() * result1;
-                    result2 = t2.getInverseTranslationMatrix() * m * t2.getTranslationMatrix() * result2; */
+                    Translation t(-r.rx, -r.ry, -r.rz);
+                    result0 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result0;
+                    result1 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result1;
+                    result2 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result2; 
                 }
             }
             v0 = result0;
@@ -201,7 +195,6 @@ namespace fst
                 hit_record = temp;
             }
         }
-
         for (auto& mesh : meshes)
         {
             if (mesh.intersect(ray, temp, min_distance))
@@ -223,8 +216,6 @@ namespace fst
                 return true;
             }
         }
-
-
         for (auto& mesh : meshes)
         {
             if (mesh.intersectShadowRay(ray, max_distance))
@@ -238,17 +229,24 @@ namespace fst
 
     std::vector<struct Transformation> Scene::ParseTransformationString (std::string transformationString) {
         std::vector<struct Transformation> transformations;
-        for (int i=0; i < transformationString.size(); i++) {
-            if (transformationString[i] == 't') {
-                Transformation t = {TRANSLATE, transformationString[i+1] - '1'};
+        std::istringstream stream(transformationString);
+        std::string token;
+        while (stream >> token) {
+            std::cout<< "TOKEN : "<< token<< std::endl;
+            std::string index = token.substr(1);
+            if (token[0] == 't') {
+                Transformation t = {TRANSLATE, std::atoi(index.c_str()) - 1};
+                std::cout << "t " << t.index << endl;
                 transformations.push_back(t);
             }
-            else if (transformationString[i] == 's') {
-                Transformation t = {SCALE, transformationString[i+1] - '1'};
+            else if (token[0] == 's') {
+                Transformation t = {SCALE, std::atoi(index.c_str()) - 1};
+                std::cout << "s " << t.index << endl;
                 transformations.push_back(t);
             }
-            else if (transformationString[i] == 'r') {
-                Transformation t = {ROTATE, transformationString[i+1] - '1'};
+            else {
+                Transformation t = {ROTATE, std::atoi(index.c_str()) - 1};
+                std::cout << "r " << t.index << endl;
                 transformations.push_back(t);
             }
         }

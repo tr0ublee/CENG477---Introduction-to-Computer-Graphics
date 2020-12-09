@@ -52,7 +52,7 @@ class Matrix{
             float d = sqrt(b*b + c*c);
             m[0][0] = d;
             m[0][1] = 0;
-            m[0][2] = -a;
+            m[0][2] = -a; //
             m[0][3] = 0;
             
             m[1][0] = 0;
@@ -72,7 +72,9 @@ class Matrix{
         }
 
         void getRotationZ(float angle){
-            float theta = angle * 180 / M_PI;
+
+            // float theta = (angle / 180) * M_PI;
+            float theta = angle * M_PI / 180;
             m[0][0] = cos(theta);
             m[0][1] = -sin(theta);
             m[0][2] = 0;
@@ -149,6 +151,7 @@ class Matrix{
         three * two * one
         */
         Matrix() {}
+        // Rotation
         Matrix (float normX, float normY, float normZ, AXIS axis, float angle=0) {
             if (axis == X) {
                 this -> getRotationX(normX, normY, normZ);
@@ -158,6 +161,7 @@ class Matrix{
                 this -> getRotationZ(angle);
             }
         }
+        // Translation and Scaling
         Matrix(float x, float y, float z, TRANSFORMATION t) {
             if ( t == SCALE ) {
                 this -> getScaleMatrix(x, y ,z); 
