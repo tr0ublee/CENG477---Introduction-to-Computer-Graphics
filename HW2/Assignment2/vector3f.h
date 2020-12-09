@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utility.h"
+#include "vector4f.h"
 #include <cmath>
 
 namespace fst
@@ -46,6 +47,13 @@ namespace fst
             Vector3f operator / (const Vector3f& vec) const
             {
                 return Vector3f(x / vec.x, y / vec.y, z / vec.z);
+            }
+
+            void operator = (const Vector4f& vec)
+            {
+                x = vec.x;
+                y = vec.y;
+                z = vec.z;
             }
 
             float operator [] (int i) const

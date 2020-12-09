@@ -16,7 +16,8 @@ typedef enum axis_type {
 
 typedef enum trans_type {
     SCALE,
-    TRANSLATE
+    TRANSLATE,
+    ROTATE
 } TRANSFORMATION;
 
 
@@ -214,7 +215,7 @@ class Matrix{
         friend std::ostream& operator<<(std::ostream& os, const Matrix &m) {
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    os << m.m[i][j] << "";
+                    os << m.m[i][j] << " ";
                 }
                 os << std::endl;
             }

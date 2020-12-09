@@ -15,7 +15,13 @@
 #include "texture.h"
 #include "matrix.h"
 
+#include <iostream>
 #include <vector>
+
+struct Transformation {
+    trans_type type;
+    int index;
+};
 
 namespace fst
 {
@@ -42,5 +48,6 @@ namespace fst
         void loadFromParser(const parser::Scene &parser);
         bool intersect(const Ray &ray, HitRecord &hit_record, float max_distance) const;
         bool intersectShadowRay(const Ray &ray, float max_distance) const;
+        std::vector<Transformation> ParseTransformationString (std::string transformationString);
     };
 } // namespace fst
