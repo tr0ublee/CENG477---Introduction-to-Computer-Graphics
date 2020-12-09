@@ -11,6 +11,6 @@ namespace fst
     public:
         float angle, x, y, z;
         Rotation(float angle, float x, float y, float z);
-        Matrix rotate(math::Vector3f& vertex);
+        Matrix getRotationMatrix(math::Vector3f& vertex);
     };
 } // namespace fst

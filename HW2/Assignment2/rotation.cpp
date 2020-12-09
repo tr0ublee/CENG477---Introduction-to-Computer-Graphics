@@ -9,7 +9,7 @@ namespace fst
         , z(z)
     {}
 
-    Matrix Rotation::rotate(math::Vector3f& vertex) {
+    Matrix Rotation::getRotationMatrix(math::Vector3f& vertex) {
         // normalize
         float len = sqrt(vertex.x * vertex.x + vertex.y * vertex.y + vertex.z * vertex.z);
         float normX = vertex.x / len;
