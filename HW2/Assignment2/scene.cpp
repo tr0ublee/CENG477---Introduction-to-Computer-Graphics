@@ -135,7 +135,6 @@ namespace fst
                 if (transformation.type == TRANSLATE) {
                     Translation t = translations[transformation.index];
                     Matrix m = t.getTranslationMatrix();
-                    cout << m << endl;
                     result0 = m * result0;
                     result1 = m * result1;
                     result2 = m * result2;
@@ -173,8 +172,41 @@ namespace fst
 
         for (auto& sphere : parser.spheres)
         {
-            spheres.push_back(Sphere(vertex_data[sphere.center_vertex_id - 1],
-                sphere.radius, sphere.material_id));
+            std::vector<struct Transformation> transformations = ParseTransformationString(sphere.transformations);
+            // transformation
+            math::Vector3f center3F = vertex_data[sphere.center_vertex_id-1];
+            math::Vector4f center(center3F.x, center3F.y, center3F.z, 1);
+            float r = sphere.radius;
+            for (auto& transformation : transformations) {
+                if (transformation.type == TRANSLATE) {
+                    Translation t = translations[transformation.index];
+                    Matrix m = t.getTranslationMatrix();
+                    center = m * center;
+                    
+                }
+                else if (transformation.type == SCALE) { 
+                    
+                    Scaling s = scalings[transformation.index];
+                    Matrix m = s.getScalingMatrix();
+                    Matrix t (-center.x, -center.y, -center.z, TRANSLATE);
+                    Matrix tBack (center.x, center.y, center.z, TRANSLATE);
+                    center = tBack * m * t * center;
+                    r = m.m[0][0] * r;
+                }
+                else { 
+                    /*
+                    Rotation r = rotations[transformation.index];
+                    Matrix m = r.getRotationMatrix();
+                    Translation t(-r.rx, -r.ry, -r.rz);
+                    result0 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result0;
+                    result1 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result1;
+                    result2 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result2; 
+                    */
+                }
+            }
+            center3F = center;
+            spheres.push_back(Sphere(center3F,
+                r, sphere.material_id));
         }
 
         background_color = math::Vector3f(parser.background_color.x, parser.background_color.y, parser.background_color.z);
@@ -232,21 +264,17 @@ namespace fst
         std::istringstream stream(transformationString);
         std::string token;
         while (stream >> token) {
-            std::cout<< "TOKEN : "<< token<< std::endl;
             std::string index = token.substr(1);
             if (token[0] == 't') {
                 Transformation t = {TRANSLATE, std::atoi(index.c_str()) - 1};
-                std::cout << "t " << t.index << endl;
                 transformations.push_back(t);
             }
             else if (token[0] == 's') {
                 Transformation t = {SCALE, std::atoi(index.c_str()) - 1};
-                std::cout << "s " << t.index << endl;
                 transformations.push_back(t);
             }
             else {
                 Transformation t = {ROTATE, std::atoi(index.c_str()) - 1};
-                std::cout << "r " << t.index << endl;
                 transformations.push_back(t);
             }
         }
