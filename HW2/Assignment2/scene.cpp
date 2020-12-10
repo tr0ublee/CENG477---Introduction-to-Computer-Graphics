@@ -186,6 +186,7 @@ namespace fst
             math::Vector3f center3F = vertex_data[sphere.center_vertex_id-1];
             math::Vector4f center(center3F.x, center3F.y, center3F.z, 1);
             float r = sphere.radius;
+            
             for (auto& transformation : transformations) {
                 if (transformation.type == TRANSLATE) {
                     Translation t = translations[transformation.index];
@@ -202,17 +203,19 @@ namespace fst
                     center = tBack * m * t * center;
                     r = m.m[0][0] * r;
                 }
+                /*
                 else { 
-                    /*
+                    
                     Rotation r = rotations[transformation.index];
                     Matrix m = r.getRotationMatrix();
                     Translation t(-r.rx, -r.ry, -r.rz);
                     result0 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result0;
                     result1 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result1;
-                    result2 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result2; 
-                    */
+                    result2 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result2;   
                 }
+                */
             }
+            
             center3F = center;
             spheres.push_back(Sphere(center3F,
                 r, sphere.material_id, sphere.texture_id - 1));

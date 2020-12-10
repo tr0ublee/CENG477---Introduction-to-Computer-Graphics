@@ -26,7 +26,7 @@ namespace fst
         }
 
         auto& material = m_scene.materials[hit_record.material_id - 1];
-        auto& texture = m_scene.textures[hit_record.texture_id];
+       
         auto color = material.get_ambient() * m_scene.ambient_light;
         auto intersection_point = ray.getPoint(hit_record.distance);
 
@@ -40,7 +40,8 @@ namespace fst
 
             if (!m_scene.intersectShadowRay(shadow_ray, light_pos_distance))
             {
-                if (hit_record.type == TRIANGLE) {
+                if (hit_record.type == TRIANGLE && hit_record.texture_id >= 0) {
+                     auto& texture = m_scene.textures[hit_record.texture_id];
                     color = material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal, hit_record, texture);
                 } else{
                     color = color + light.computeRadiance(light_pos_distance) * material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal);

@@ -32,7 +32,6 @@ namespace fst
                 hit_record.texture_id = texture_id;
             }
         }
-
         return min_distance != max_distance;
     }
 

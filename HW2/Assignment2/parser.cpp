@@ -256,6 +256,9 @@ void parser::Scene::loadFromXml(const std::string& filepath)
             stream << child->GetText() << std::endl;
             stream >> mesh.texture_id;
         }
+        else {
+            mesh.texture_id = -1;
+        }
 
         child = element->FirstChildElement("Transformations");
         
@@ -298,6 +301,9 @@ void parser::Scene::loadFromXml(const std::string& filepath)
             stream << child->GetText() << std::endl;
             stream >> triangle.texture_id;
         }
+        else {
+            triangle.texture_id = -1;
+        }
 
         child = element->FirstChildElement("Transformations");
         
@@ -331,6 +337,9 @@ void parser::Scene::loadFromXml(const std::string& filepath)
         if (child) {
             stream << child->GetText() << std::endl;
             stream >> sphere.texture_id;
+        }
+        else {
+            sphere.texture_id = -1;
         }
 
         child = element->FirstChildElement("Transformations");
