@@ -41,8 +41,8 @@ namespace fst
             if (!m_scene.intersectShadowRay(shadow_ray, light_pos_distance))
             {
                 if (hit_record.type == TRIANGLE && hit_record.texture_id >= 0) {
-                     auto& texture = m_scene.textures[hit_record.texture_id];
-                    color = material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal, hit_record, texture);
+                    auto& texture = m_scene.textures[hit_record.texture_id];
+                    color = color + light.computeRadiance(light_pos_distance) * material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal, hit_record, texture);
                 } else{
                     color = color + light.computeRadiance(light_pos_distance) * material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal);
                 }

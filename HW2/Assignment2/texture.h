@@ -2,6 +2,20 @@
 #include <string>
 #include "vector3f.h"
 
+enum Interpolation {
+    NEAREST,
+    BILINEAR
+};
+enum DecalMode {
+    REPLACE_KD,
+    BLEND_KD,
+    REPLACE_ALL
+};
+enum Appearance {
+    CLAMP,
+    REPEAT
+};
+
 namespace fst
 {
     class Texture
@@ -17,6 +31,9 @@ namespace fst
                 std::string appearance);
         // Texture(const Texture& text);
         fst::math::Vector3f getUV(float u, float v) const;
+        Interpolation getInterpolation() const;
+        DecalMode getDecalMode() const;
+        Appearance getAppearance() const;
         ~Texture();
         unsigned char *m_image;
 
@@ -24,8 +41,8 @@ namespace fst
         int m_width;
         int m_height;
         std::string m_imageName;
-        std::string m_interpolation;
-        std::string m_decalMode;
-        std::string m_appearance;
+        Interpolation m_interpolation;
+        DecalMode m_decalMode;
+        Appearance m_appearance;
     };
 }

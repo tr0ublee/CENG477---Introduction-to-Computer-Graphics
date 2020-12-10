@@ -20,10 +20,8 @@ namespace fst
 
     math::Vector3f Material::computeBrdf(const math::Vector3f& wi, const math::Vector3f& wo, const math::Vector3f& normal, const HitRecord& hit_record, const Texture& txt) const
     {
-        auto diffuse = math::max(math::dot(normal, wi), 0.0f);
-        // TODO: texture
-        // const Texture* txt = &scene.textures[hit_record.texture_id];
         fst::math::Vector3f color = txt.getUV(hit_record.u, hit_record.v);
+        auto diffuse = math::max(math::dot(normal, wi), 0.0f);
         auto specular = std::pow(math::max(math::dot(math::normalize(wo + wi), normal), 0.0f), m_phong_exponent);
         if (color.x > 255){
             color.x = 255;
@@ -34,7 +32,17 @@ namespace fst
         if (color.z > 255) {
             color.z = 255;
         }
-        return color;
+        if (txt.getDecalMode() == REPLACE_KD) {
+            math::Vector3f C = color / 255.0;
+            return m_specular * specular + C * diffuse;
+        }
+        else if (txt.getDecalMode() == BLEND_KD) {
+            math::Vector3f C = color / 255;
+            return m_specular * specular + ((m_diffuse + C) / 2) * diffuse;
+        }
+        else {
+            return m_specular * specular + color;
+        }
         // return m_specular * specular + m_diffuse * diffuse;
     }
 }

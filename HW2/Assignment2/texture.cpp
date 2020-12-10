@@ -14,11 +14,27 @@ namespace fst
       : m_width(width),
         m_height(height),
         m_image(image),
-        m_imageName(imageName),
-        m_interpolation(interpolation),
-        m_decalMode(decalMode),
-        m_appearance(appearance)
+        m_imageName(imageName)
   {
+    if (interpolation == "nearest") {
+      m_interpolation = NEAREST;
+    } else {
+      m_interpolation = BILINEAR;
+    }
+    
+    if (decalMode == "replace_kd") {
+      m_decalMode = REPLACE_KD;
+    } else if (decalMode == "blend_kd") {
+      m_decalMode = BLEND_KD;
+    } else {
+      m_decalMode = REPLACE_ALL;
+    }
+
+    if (appearance == "clamp") {
+      m_appearance = CLAMP;
+    } else {
+      m_appearance = REPEAT;
+    }
   }
 
   // Texture::Texture(const Texture& text) {
@@ -60,5 +76,14 @@ namespace fst
     color.z = m_image[index+2];
     return color;
 
+  }
+  Interpolation Texture::getInterpolation() const {
+    return m_interpolation;
+  }
+  DecalMode Texture::getDecalMode() const {
+    return m_decalMode;
+  }
+  Appearance Texture::getAppearance() const {
+    return m_appearance;
   }
 } // namespace fst
