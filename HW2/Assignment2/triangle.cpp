@@ -1,26 +1,28 @@
 #include "hit_record.h"
 #include "triangle.h"
 #include "ray.h"
+#include <iostream>
 
 namespace fst
 {
-    Triangle::Triangle(const math::Vector3f& v0, const math::Vector3f& edge1, const math::Vector3f& edge2)
+    Triangle::Triangle(const math::Vector3f& v0, const math::Vector3f& edge1, const math::Vector3f& edge2, int texture_id)
         : m_v0(v0)
         , m_edge1(edge1)
         , m_edge2(edge2)
         , m_normal(math::normalize(math::cross(edge1, edge2)))
+        , texture_id(texture_id)
     {}
 
     bool Triangle::intersect(const Ray& ray, HitRecord& hit_record, float max_distance) const
     {
-        //Möller-Trumbore algorithm
+        //Mï¿½ller-Trumbore algorithm
         auto pvec = math::cross(ray.get_direction(), m_edge2);
         auto inv_det = 1.0f / math::dot(m_edge1, pvec);
 
         auto tvec = ray.get_origin() - m_v0;
         auto w1 = math::dot(tvec, pvec) * inv_det;
 
-        if (w1 < 0.0f || w1 > 1.0f)
+        if (w1 < 0.0f || w1 > 1.0f)  // that is u
         {
             return false;
         }
@@ -28,7 +30,7 @@ namespace fst
         auto qvec = math::cross(tvec, m_edge1);
         auto w2 = math::dot(ray.get_direction(), qvec) * inv_det;
 
-        if (w2 < 0.0f || (w1 + w2) > 1.0f)
+        if (w2 < 0.0f || (w1 + w2) > 1.0f) // that is v
         {
             return false;
         }
@@ -39,7 +41,9 @@ namespace fst
             //Fill the intersection record.
             hit_record.normal = m_normal;
             hit_record.distance = distance;
-
+            hit_record.type = TRIANGLE;
+            hit_record.u = w1;
+            hit_record.v = w2;
             return true;
         }
         return false;
@@ -47,7 +51,7 @@ namespace fst
 
     bool Triangle::intersectShadowRay(const Ray& ray, float max_distance) const
     {
-        //Möller-Trumbore algorithm
+        //Mï¿½ller-Trumbore algorithm
         auto pvec = math::cross(ray.get_direction(), m_edge2);
         auto inv_det = 1.0f / math::dot(m_edge1, pvec);
 

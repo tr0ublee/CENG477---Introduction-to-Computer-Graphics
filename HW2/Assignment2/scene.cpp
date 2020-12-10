@@ -7,6 +7,7 @@
 
 using namespace std;
 
+
 namespace fst
 {
     void Scene::loadFromParser(const parser::Scene& parser)
@@ -119,9 +120,9 @@ namespace fst
                 triangles.push_back(Triangle(
                     v0,
                     v1 - v0,
-                    v2 - v0));
+                    v2 - v0, mesh.texture_id-1));
             }
-            meshes.push_back(Mesh(std::move(triangles), mesh.material_id));
+            meshes.push_back(Mesh(std::move(triangles), mesh.material_id, mesh.texture_id - 1));
         }
 
         for (auto& triangle : parser.triangles)
@@ -172,9 +173,10 @@ namespace fst
             triangles.push_back(Triangle(
                 v0,
                 v1 - v0,
-                v2 - v0));
+                v2 - v0,
+                triangle.texture_id - 1));
 
-            meshes.push_back(Mesh(std::move(triangles), triangle.material_id));
+            meshes.push_back(Mesh(std::move(triangles), triangle.material_id, triangle.texture_id - 1));
         }
 
         for (auto& sphere : parser.spheres)
@@ -213,7 +215,7 @@ namespace fst
             }
             center3F = center;
             spheres.push_back(Sphere(center3F,
-                r, sphere.material_id));
+                r, sphere.material_id, sphere.texture_id - 1));
         }
 
         for (auto& texture : parser.textures) {

@@ -4,10 +4,11 @@
 
 namespace fst
 {
-    Sphere::Sphere(const math::Vector3f& center, float radius, int material_id)
+    Sphere::Sphere(const math::Vector3f& center, float radius, int material_id, int texture_id)
         : m_center(center)
         , m_radius(radius)
         , m_material_id(material_id)
+        , texture_id(texture_id)
     {}
 
     bool Sphere::intersect(const Ray& ray, HitRecord& hit_record, float max_distance) const
@@ -29,6 +30,8 @@ namespace fst
             hit_record.distance = distance;
             hit_record.normal = math::normalize(ray.getPoint(hit_record.distance) - m_center);
             hit_record.material_id = m_material_id;
+            hit_record.texture_id = texture_id;
+            hit_record.type = SPHERE;
 
             return true;
         }

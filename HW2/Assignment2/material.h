@@ -2,6 +2,8 @@
 
 #include "hit_record.h"
 #include "vector3f.h"
+#include "texture.h"
+
 
 namespace fst
 {
@@ -11,6 +13,7 @@ namespace fst
         Material(const math::Vector3f& ambient, const math::Vector3f& diffuse, const math::Vector3f& specular, const math::Vector3f& mirror, float phong_exponent);
 
         math::Vector3f computeBrdf(const math::Vector3f& wi, const math::Vector3f& wo, const math::Vector3f& normal) const;
+        math::Vector3f computeBrdf(const math::Vector3f& wi, const math::Vector3f& wo, const math::Vector3f& normal, const HitRecord& hit_record,  const Texture& txt) const;
 
         const math::Vector3f& get_ambient() const { return m_ambient; }
         const math::Vector3f& get_mirror() const { return m_mirror; }

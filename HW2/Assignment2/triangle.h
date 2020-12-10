@@ -2,6 +2,7 @@
 
 #include "triangular.h"
 #include "vector3f.h"
+#include "texture.h"
 
 namespace fst
 {
@@ -11,7 +12,9 @@ namespace fst
     class Triangle : public Triangular
     {
     public:
-        Triangle(const math::Vector3f& v0, const math::Vector3f& edge1, const math::Vector3f& edge2);
+        int texture_id;
+
+        Triangle(const math::Vector3f& v0, const math::Vector3f& edge1, const math::Vector3f& edge2, int texture_id);
 
         bool intersect(const Ray& ray, HitRecord& hit_record, float max_distance) const override;
         bool intersectShadowRay(const Ray& ray, float max_distance) const override;

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "vector3f.h"
 
 namespace fst
 {
@@ -15,12 +16,13 @@ namespace fst
                 std::string decalMode,
                 std::string appearance);
         // Texture(const Texture& text);
+        fst::math::Vector3f getUV(float u, float v) const;
         ~Texture();
+        unsigned char *m_image;
 
     private:
         int m_width;
         int m_height;
-        unsigned char *m_image;
         std::string m_imageName;
         std::string m_interpolation;
         std::string m_decalMode;

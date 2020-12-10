@@ -1,6 +1,7 @@
 #include "integrator.h"
 #include "image.h"
 #include "ctpl_stl.h"
+#include <iostream>
 
 namespace fst
 {
@@ -25,6 +26,7 @@ namespace fst
         }
 
         auto& material = m_scene.materials[hit_record.material_id - 1];
+        auto& texture = m_scene.textures[hit_record.texture_id];
         auto color = material.get_ambient() * m_scene.ambient_light;
         auto intersection_point = ray.getPoint(hit_record.distance);
 
@@ -38,7 +40,11 @@ namespace fst
 
             if (!m_scene.intersectShadowRay(shadow_ray, light_pos_distance))
             {
-                color = color + light.computeRadiance(light_pos_distance) * material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal);
+                if (hit_record.type == TRIANGLE) {
+                    color = material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal, hit_record, texture);
+                } else{
+                    color = color + light.computeRadiance(light_pos_distance) * material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal);
+                }
             }
         }
 
