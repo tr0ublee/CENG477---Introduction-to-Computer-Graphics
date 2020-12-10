@@ -42,16 +42,18 @@ namespace fst
       v = 0.0;
     }
     // round(i,j)
-    float i = u * m_width;
+    float i = u * (m_width-1);
     int imageX = std::round(i);
-    float j = v * m_height ;
+    if (imageX > m_width - 1) {
+      imageX = m_width -1;
+    }
+    float j = v * (m_height-1) ;
     int imageY = std::round(j);
+    if (imageY > m_height -1 ){
+      imageY = m_height - 1;
+    }
     int index = m_width * imageX + imageY;
     index *= 3; 
-    // (i, j)
-    // calculat index
-    // index = round(index)
-    // image[index]
     fst::math::Vector3f color;
     color.x = m_image[index];
     color.y = m_image[index+1];
