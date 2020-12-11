@@ -20,7 +20,7 @@ namespace fst
 
     math::Vector3f Material::computeBrdf(const math::Vector3f& wi, const math::Vector3f& wo, const math::Vector3f& normal, const HitRecord& hit_record, const Texture& txt) const
     {
-        fst::math::Vector3f color = txt.getUV(hit_record.u, hit_record.v);
+        fst::math::Vector3f color = txt.getUV(hit_record.u, hit_record.v, txt.getInterpolation());
         auto diffuse = math::max(math::dot(normal, wi), 0.0f);
         auto specular = std::pow(math::max(math::dot(math::normalize(wo + wi), normal), 0.0f), m_phong_exponent);
         if (color.x > 255){

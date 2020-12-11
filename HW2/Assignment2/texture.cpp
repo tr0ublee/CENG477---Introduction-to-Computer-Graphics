@@ -44,39 +44,54 @@ namespace fst
   Texture::~Texture() {
   }
 
-  math::Vector3f Texture::getUV(float u, float v) const {
-    if (u > 1.0) {
-      u = 1.0;
+  math::Vector3f Texture::getUV(float u, float v,  Interpolation type) const {
+    if (type == BILINEAR) {
+      float i = u * (m_width);
+      float j = v * (m_height);
+      int p = floor(i);
+      int q = floor(j);
+      float dx = i - p;
+      float dy = j - q;
+      if (p == m_width){
+        p--;
+      }
+      if (q == m_height){
+        q--;
+      }
+      int index0 = 3 * (m_width * q + p);
+      int index1 = 3 * (m_width * q + p+1);
+      int index2 = 3 * (m_width * (q+1) + p);
+      int index3 = 3 * (m_width * (q+1) + p+1);
+      fst::math::Vector3f color;
+      color.x = m_image[index0] * (1-dx) * (1-dy) + m_image[index1] * dx* (1-dy) + m_image[index2] * (1-dx) * dy  + m_image[index3] * dx * dy;
+      color.y = m_image[index0+1] * (1-dx) * (1-dy) + m_image[index1+1] * dx* (1-dy) + m_image[index2+1] * (1-dx) * dy  + m_image[index3+1] * dx * dy;
+      color.z = m_image[index0+2] * (1-dx) * (1-dy) + m_image[index1+2] * dx* (1-dy) + m_image[index2+2] * (1-dx) * dy  + m_image[index3+2] * dx * dy;
+      return color;
+
+    } else {
+      // round(i,j)
+      float i = u * (m_width);
+      int imageX = std::round(i);
+      if (imageX == m_width){
+        imageX = m_width - 1;
+      }
+      float j = v * (m_height);
+      int imageY = std::round(j);
+      if (imageY == m_height){
+        imageY = m_height - 1;
+      }
+      int index = m_width * imageY + imageX;
+      index *= 3; 
+      fst::math::Vector3f color;
+      color.x = m_image[index];
+      color.y = m_image[index+1];
+      color.z = m_image[index+2];
+      return color;
     }
-    if (u < 0.0) {
-      u = 0.0;
-    }
-    if (v > 1.0) {
-      v = 1.0;
-    }
-    if (v < 0.0) {
-      v = 0.0;
-    }
-    // round(i,j)
-    float i = u * (m_width);
-    int imageX = std::round(i);
-    if (imageX == m_width){
-      imageX = m_width - 1;
-    }
-    float j = v * (m_height) ;
-    int imageY = std::round(j);
-    if (imageY == m_height){
-      imageY = m_height - 1;
-    }
-    int index = m_width * imageY + imageX;
-    index *= 3; 
-    fst::math::Vector3f color;
-    color.x = m_image[index];
-    color.y = m_image[index+1];
-    color.z = m_image[index+2];
-    return color;
+
 
   }
+
   Interpolation Texture::getInterpolation() const {
     return m_interpolation;
   }
