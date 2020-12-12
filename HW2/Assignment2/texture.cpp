@@ -1,5 +1,6 @@
 #include "texture.h"
 #include <string>
+#include <iostream>
 
 namespace fst
 {
@@ -45,19 +46,21 @@ namespace fst
   }
 
   math::Vector3f Texture::getUV(float u, float v,  Interpolation type) const {
+    u = u - floor(u);
+    v = v - floor(v);
+    float i = u * (m_width);
+    float j = v * (m_height);
     if (type == BILINEAR) {
-      float i = u * (m_width);
-      float j = v * (m_height);
       int p = floor(i);
       int q = floor(j);
-      float dx = i - p;
-      float dy = j - q;
-      if (p == m_width){
+      if (p == m_width - 1){
         p--;
       }
-      if (q == m_height){
+      if (q == m_height - 1){
         q--;
       }
+      float dx = i - p;
+      float dy = j - q;
       int index0 = 3 * (m_width * q + p);
       int index1 = 3 * (m_width * q + p+1);
       int index2 = 3 * (m_width * (q+1) + p);
@@ -69,19 +72,17 @@ namespace fst
       return color;
 
     } else {
-      // round(i,j)
       float i = u * (m_width);
+      float j = v * (m_height);
       int imageX = std::round(i);
+      int imageY = std::round(j);
       if (imageX == m_width){
         imageX = m_width - 1;
       }
-      float j = v * (m_height);
-      int imageY = std::round(j);
       if (imageY == m_height){
         imageY = m_height - 1;
       }
-      int index = m_width * imageY + imageX;
-      index *= 3; 
+      int index = 3 * (m_width * imageY + imageX);
       fst::math::Vector3f color;
       color.x = m_image[index];
       color.y = m_image[index+1];
