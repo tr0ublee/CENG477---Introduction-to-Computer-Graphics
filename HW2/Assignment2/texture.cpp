@@ -46,8 +46,23 @@ namespace fst
   }
 
   math::Vector3f Texture::getUV(float u, float v) const {
-    u = u - floor(u);
-    v = v - floor(v);
+    if (m_appearance == CLAMP) {
+      if (u < 0) {
+        u = 0;
+      } else if (u > 1) {
+        u = 1;
+      }
+      if (v < 0) {
+        v = 0;
+      } else if (v > 1) {
+        v = 1;
+      }
+    } else {
+      // REPEAT
+      u = u - floor(u);
+      v = v - floor(v);
+    }
+   
     float i = u * (m_width);
     float j = v * (m_height);
     if (m_interpolation == BILINEAR) {
