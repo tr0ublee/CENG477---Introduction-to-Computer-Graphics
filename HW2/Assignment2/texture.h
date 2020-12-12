@@ -16,6 +16,8 @@ enum Appearance {
     REPEAT
 };
 
+
+
 namespace fst
 {
     class Texture
@@ -30,7 +32,7 @@ namespace fst
                 std::string decalMode,
                 std::string appearance);
         // Texture(const Texture& text);
-        fst::math::Vector3f getUV(float u, float v, Interpolation type) const;
+        fst::math::Vector3f getUV(float u, float v) const;
         Interpolation getInterpolation() const;
         DecalMode getDecalMode() const;
         Appearance getAppearance() const;

@@ -45,12 +45,12 @@ namespace fst
   Texture::~Texture() {
   }
 
-  math::Vector3f Texture::getUV(float u, float v,  Interpolation type) const {
+  math::Vector3f Texture::getUV(float u, float v) const {
     u = u - floor(u);
     v = v - floor(v);
     float i = u * (m_width);
     float j = v * (m_height);
-    if (type == BILINEAR) {
+    if (m_interpolation == BILINEAR) {
       int p = floor(i);
       int q = floor(j);
       if (p == m_width - 1){

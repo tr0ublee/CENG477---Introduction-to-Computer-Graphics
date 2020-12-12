@@ -42,7 +42,12 @@ namespace fst
             {
                 if (hit_record.type == TRIANGLE && hit_record.texture_id >= 0) {
                     auto& texture = m_scene.textures[hit_record.texture_id];
-                    color = color + light.computeRadiance(light_pos_distance) * material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal, hit_record, texture);
+                    ColorInformation colorInfo = material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal, hit_record, texture);
+                    if (texture.getDecalMode() == REPLACE_ALL) {
+                        color = color + light.computeRadiance(light_pos_distance) * colorInfo.specular + colorInfo.diffuse;
+                    } else {
+                        color = color + light.computeRadiance(light_pos_distance) * (colorInfo.diffuse + colorInfo.specular);
+                    }
                 } else{
                     color = color + light.computeRadiance(light_pos_distance) * material.computeBrdf(to_light, -ray.get_direction(), hit_record.normal);
                 }
