@@ -54,15 +54,15 @@ namespace fst
             math::Vector3f normal(intersection4P.x - m_center.x, intersection4P.y - m_center.y, intersection4P.z - m_center.z);
             normal = fst::math::normalize(normal);
             // calculate u, v
-            float theta = acos((normal.y) / m_radius);
-            float phi = atan(normal.z / normal.x);
+            float theta = acos((normal.y));
+            float phi = atan2(normal.z, normal.x);
             hit_record.distance = distance;
             hit_record.normal = math::normalize(ray.getPoint(hit_record.distance) - m_center);
             hit_record.material_id = m_material_id;
             hit_record.texture_id = texture_id;
             hit_record.type = SPHERE;
-            hit_record.u = (- atan2(normal.z,normal.x) + M_PI) / (2 * M_PI);//(-phi + M_PI) / (2 * M_PI);
-            hit_record.v = 0.5 - asin(normal.y) / M_PI;// theta / M_PI;
+            hit_record.u = (-phi + M_PI) / (2 * M_PI);
+            hit_record.v = theta / M_PI;
             return true;
         }
         return false;
