@@ -126,6 +126,10 @@ void parser::Scene::loadFromXml(const std::string& filepath)
         if (child) {
             stream << child->GetText() << std::endl;
             stream >> material.mirror.x >> material.mirror.y >> material.mirror.z;
+        } else {
+            material.mirror.x = 0;
+            material.mirror.y = 0;
+            material.mirror.z = 0;
         }
         
         child = element->FirstChildElement("AmbientReflectance");
