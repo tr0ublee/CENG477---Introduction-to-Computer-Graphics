@@ -16,12 +16,7 @@ namespace fst
 
         Matrix S = this -> getScalingMatrix();
         Matrix T1 = t.getTranslationMatrix();
-        std::cout << "T1" << std::endl;
-        std::cout<< T1 << std::endl;
         Matrix T2 = t.getInverseTranslationMatrix();
-        std::cout << "T2" << std::endl;
-        std::cout<< T2 << std::endl;
-
         return T2 * S * T1;
     }
 }

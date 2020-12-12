@@ -27,19 +27,28 @@ class Matrix{
 
         void getRotationX(float a, float b, float c) {
             float d = sqrt(b*b + c*c);
+            float cd;
+            float bd;
+            if (d == 0) {
+                cd = 0;
+                bd = 0;
+            } else {
+                cd = c/d;
+                bd = b/d;
+            }
             m[0][0] = 1;
             m[0][1] = 0;
             m[0][2] = 0;
             m[0][3] = 0;
 
             m[1][0] = 0;
-            m[1][1] = c/d;
-            m[1][2] = -b/d;
+            m[1][1] = cd;
+            m[1][2] = -bd;
             m[1][3] = 0;
 
             m[2][0] = 0;
-            m[2][1] = b/d;
-            m[2][2] = c/d;
+            m[2][1] = bd;
+            m[2][2] = cd;
             m[2][3] = 0;
 
             m[3][0] = 0;
@@ -201,7 +210,6 @@ class Matrix{
             output.m[3][1] = m[3][0] * rhs.m[0][1] + m[3][1] * rhs.m[1][1] + m[3][2] * rhs.m[2][1] + m[3][3] * rhs.m[3][1];
             output.m[3][2] = m[3][0] * rhs.m[0][2] + m[3][1] * rhs.m[1][2] + m[3][2] * rhs.m[2][2] + m[3][3] * rhs.m[3][2];
             output.m[3][3] = m[3][0] * rhs.m[0][3] + m[3][1] * rhs.m[1][3] + m[3][2] * rhs.m[2][3] + m[3][3] * rhs.m[3][3];
-            
             return output;
         }
 

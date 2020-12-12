@@ -20,7 +20,8 @@ namespace fst
         Matrix rotationMatrixZ(a, b, c, Z, angle);
         Matrix inverseRotationMatrixX(a, -b, c, X);
         Matrix inverseRotationMatrixY(a, b, c, Y);
-        return inverseRotationMatrixX * inverseRotationMatrixY * rotationMatrixZ * rotationMatrixY * rotationMatrixX;
+        Matrix out = inverseRotationMatrixX * inverseRotationMatrixY * rotationMatrixZ * rotationMatrixY * rotationMatrixX;
+        return out;
     }
 
 }

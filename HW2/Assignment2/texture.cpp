@@ -91,10 +91,10 @@ namespace fst
       float j = v * (m_height);
       int imageX = std::round(i);
       int imageY = std::round(j);
-      if (imageX == m_width){
+      if (imageX >= m_width){
         imageX = m_width - 1;
       }
-      if (imageY == m_height){
+      if (imageY >= m_height){
         imageY = m_height - 1;
       }
       int index = 3 * (m_width * imageY + imageX);

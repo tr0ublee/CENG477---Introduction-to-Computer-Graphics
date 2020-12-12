@@ -4,12 +4,17 @@
 
 namespace fst
 {
-    Sphere::Sphere(const math::Vector3f& center, float radius, int material_id, int texture_id)
+    Sphere::Sphere(const math::Vector3f& center, float radius, int material_id, int texture_id, std::vector<fst::Rotation>& rot)
         : m_center(center)
         , m_radius(radius)
         , m_material_id(material_id)
         , texture_id(texture_id)
-    {}
+    {
+        int size = rot.size();
+        for (int i = 0; i < size; i++ ) {
+            this -> rot.push_back(rot[i]);
+        }
+    }
 
     bool Sphere::intersect(const Ray& ray, HitRecord& hit_record, float max_distance) const
     {
@@ -26,13 +31,38 @@ namespace fst
         auto distance = a - sqrtf(x);
         if (distance > 0.0f && distance < max_distance)
         {
-            //Fill the intersection record.
+            // Fill the intersection record.
+            // intersection point is the distance.
+            // rotate c, distance.
+
+            math::Vector4f center(m_center.x, m_center.y, m_center.z, 1);
+            math::Vector3f intersectionP = ray.getPoint(distance);
+            math::Vector4f intersection4P(intersectionP.x, intersectionP.y, intersectionP.z, 1);
+            Translation t(-center.x, -center.y, -center.z);
+            Matrix tMatrix  = t.getTranslationMatrix();
+            Matrix tBack = t.getInverseTranslationMatrix();
+            // Matrix tBackMatrix = t.getInverseTranslationMatrix();
+            intersection4P = tMatrix * intersection4P;
+            center = tMatrix * center;
+            for (int i = 0; i < rot.size(); i++) {
+                Rotation r = rot[i]; 
+                Matrix m = r.getRotationMatrix();
+                intersection4P =  m * intersection4P;
+                // center = m  * center;
+            }
+            intersection4P = tBack * intersection4P;
+            math::Vector3f normal(intersection4P.x - m_center.x, intersection4P.y - m_center.y, intersection4P.z - m_center.z);
+            normal = fst::math::normalize(normal);
+            // calculate u, v
+            float theta = acos((normal.y) / m_radius);
+            float phi = atan(normal.z / normal.x);
             hit_record.distance = distance;
             hit_record.normal = math::normalize(ray.getPoint(hit_record.distance) - m_center);
             hit_record.material_id = m_material_id;
             hit_record.texture_id = texture_id;
             hit_record.type = SPHERE;
-
+            hit_record.u = (- atan2(normal.z,normal.x) + M_PI) / (2 * M_PI);//(-phi + M_PI) / (2 * M_PI);
+            hit_record.v = 0.5 - asin(normal.y) / M_PI;// theta / M_PI;
             return true;
         }
         return false;
