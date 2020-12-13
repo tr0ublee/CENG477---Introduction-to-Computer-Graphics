@@ -230,14 +230,8 @@ namespace fst
                 else { 
                     Rotation r = rotations[transformation.index];
                     rot.push_back(r);
-                    /*    
-                    Rotation r = rotations[transformation.index];
                     Matrix m = r.getRotationMatrix();
-                    Translation t(-r.rx, -r.ry, -r.rz);
-                    result0 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result0;
-                    result1 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result1;
-                    result2 = t.getInverseTranslationMatrix() * m * t.getTranslationMatrix() * result2;
-                    */   
+                    center = m * center;
                 }
                 
             }

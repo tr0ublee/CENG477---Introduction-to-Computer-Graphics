@@ -23,88 +23,7 @@ typedef enum trans_type {
 
 class Matrix{
     
-    private:
-
-        void getRotationX(float a, float b, float c) {
-            float d = sqrt(b*b + c*c);
-            float cd;
-            float bd;
-            if (d == 0) {
-                cd = 0;
-                bd = 0;
-            } else {
-                cd = c/d;
-                bd = b/d;
-            }
-            m[0][0] = 1;
-            m[0][1] = 0;
-            m[0][2] = 0;
-            m[0][3] = 0;
-
-            m[1][0] = 0;
-            m[1][1] = cd;
-            m[1][2] = -bd;
-            m[1][3] = 0;
-
-            m[2][0] = 0;
-            m[2][1] = bd;
-            m[2][2] = cd;
-            m[2][3] = 0;
-
-            m[3][0] = 0;
-            m[3][1] = 0;
-            m[3][2] = 0;
-            m[3][3] = 1;
-        }
-
-        void getRotationY(float a, float b, float c) {
-            float d = sqrt(b*b + c*c);
-            m[0][0] = d;
-            m[0][1] = 0;
-            m[0][2] = -a; //
-            m[0][3] = 0;
-            
-            m[1][0] = 0;
-            m[1][1] = 1;
-            m[1][2] = 0;
-            m[1][3] = 0;
-
-            m[2][0] = a;
-            m[2][1] = 0;
-            m[2][2] = d;
-            m[2][3] = 0;
-            
-            m[3][0] = 0;
-            m[3][1] = 0;
-            m[3][2] = 0;
-            m[3][3] = 1;
-        }
-
-        void getRotationZ(float angle){
-
-            // float theta = (angle / 180) * M_PI;
-            float theta = angle * M_PI / 180;
-            m[0][0] = cos(theta);
-            m[0][1] = -sin(theta);
-            m[0][2] = 0;
-            m[0][3] = 0;
-            
-            m[1][0] = sin(theta);
-            m[1][1] = cos(theta);
-            m[1][2] = 0;
-            m[1][3] = 0;
-
-            m[2][0] = 0;
-            m[2][1] = 0;
-            m[2][2] = 1;
-            m[2][3] = 0;
-            
-            m[3][0] = 0;
-            m[3][1] = 0;
-            m[3][2] = 0;
-            m[3][3] = 1;
-        }
-
+    public:
         void getTranslationMatrix(float tx, float ty, float tz) {
             m[0][0] = 1;
             m[0][1] = 0;
@@ -147,33 +66,108 @@ class Matrix{
             m[3][2] = 0;
             m[3][3] = 1;
         }
+
+        void getRotationMatrix(float rx, float ry, float rz, float angle) {
+            fst::math::Vector3f axis (rx, ry, rz);
+            Matrix M = Matrix::getAltRot(axis);
+            Matrix MInv = Matrix::getAltInvRot(axis);
+            Matrix RxTheta = Matrix::getRx(angle);
+            (*this) = MInv * RxTheta * M;
+        }
+        
+        static Matrix getAltRot(fst::math::Vector3f& u) {
+            u = fst::math::normalize(u);
+            fst::math::Vector3f v = fst::math::getOrthogonal(u);
+            fst::math::Vector3f w = fst::math::cross(u,v);
+            v = fst::math::normalize(v);
+            w = fst::math::normalize(w);
+            Matrix m;
+            m.m[0][0] = u.x;
+            m.m[0][1] = u.y;
+            m.m[0][2] = u.z;
+            m.m[0][3] = 0;
+
+            m.m[1][0] = v.x;
+            m.m[1][1] = v.y;
+            m.m[1][2] = v.z;
+            m.m[1][3] = 0;
+
+            m.m[2][0] = w.x;
+            m.m[2][1] = w.y;
+            m.m[2][2] = w.z;
+            m.m[2][3] = 0;
+
+            m.m[3][0] = 0;
+            m.m[3][1] = 0;
+            m.m[3][2] = 0;
+            m.m[3][3] = 1;
+            return m;
+        }
+        static Matrix getAltInvRot(fst::math::Vector3f& u) {
+            u = fst::math::normalize(u);
+            fst::math::Vector3f v = fst::math::getOrthogonal(u);
+            fst::math::Vector3f w = fst::math::cross(u,v);
+            v = fst::math::normalize(v);
+            w = fst::math::normalize(w);
+            Matrix m;
+
+            m.m[0][0] = u.x;
+            m.m[0][1] = v.x;
+            m.m[0][2] = w.x;
+            m.m[0][3] = 0;
+
+            m.m[1][0] = u.y;
+            m.m[1][1] = v.y;
+            m.m[1][2] = w.y;
+            m.m[1][3] = 0;
+
+            m.m[2][0] = u.z;
+            m.m[2][1] = v.z;
+            m.m[2][2] = w.z;
+            m.m[2][3] = 0;
+
+            m.m[3][0] = 0;
+            m.m[3][1] = 0;
+            m.m[3][2] = 0;
+            m.m[3][3] = 1;
+            return m;
+        }
+        static Matrix getRx(float angle) {
+            float theta = angle * M_PI / 180;
+        
+            Matrix m;
+
+            m.m[0][0] = 1;
+            m.m[0][1] = 0;
+            m.m[0][2] = 0;
+            m.m[0][3] = 0;
+
+            m.m[1][0] = 0;
+            m.m[1][1] = cos(theta);
+            m.m[1][2] = -sin(theta);
+            m.m[1][3] = 0;
+
+            m.m[2][0] = 0;
+            m.m[2][1] = sin(theta);
+            m.m[2][2] = cos(theta);
+            m.m[2][3] = 0;
+
+            m.m[3][0] = 0;
+            m.m[3][1] = 0;
+            m.m[3][2] = 0;
+            m.m[3][3] = 1;
+            return m;
+        }
     
     public:
 
         float m[4][4];
-        /*
-        MAIN:
-        Calculate u
-        one = Matrix (u.x, u.y, u.z, X)
-        two = Matrix (u.x, u.y, u.z, Y)
-        three = Matrix(u.x, u.y, u.z, Z, angle)
-        three * two * one
-        */
         Matrix() {}
-        // Rotation
-        Matrix (float normX, float normY, float normZ, AXIS axis, float angle=0) {
-            if (axis == X) {
-                this -> getRotationX(normX, normY, normZ);
-            } else if (axis == Y) {
-                this -> getRotationY(normX, normY, normZ);
-            } else {
-                this -> getRotationZ(angle);
-            }
-        }
-        // Translation and Scaling
-        Matrix(float x, float y, float z, TRANSFORMATION t) {
+        Matrix(float x, float y, float z,  TRANSFORMATION t, float angle = 0) {
             if ( t == SCALE ) {
                 this -> getScaleMatrix(x, y ,z); 
+            } else if ( t== ROTATE) {
+                this -> getRotationMatrix(x, y, z, angle);
             }
             else {
                 this -> getTranslationMatrix(x, y, z);
@@ -213,6 +207,14 @@ class Matrix{
             return output;
         }
 
+        void operator=(const Matrix& rhs) {
+            Matrix out;
+            for (int i = 0; i < 4; i++){
+                for (int j = 0; j < 4; j++) {
+                    this -> m[i][j] = rhs.m[i][j];
+                }
+            }
+        }
         fst::math::Vector4f operator*(const fst::math::Vector4f& rhs){
             fst::math::Vector4f output;
             

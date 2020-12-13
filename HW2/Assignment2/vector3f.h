@@ -3,7 +3,8 @@
 #include "utility.h"
 #include "vector4f.h"
 #include <cmath>
-
+#include <iostream>
+#include <stdlib.h>     /* abs */
 namespace fst
 {
     namespace math
@@ -120,6 +121,20 @@ namespace fst
         static Vector3f reflect(const Vector3f& vec, const Vector3f& normal)
         {
             return vec - normal * dot(normal, vec) * 2.0f;
+        }
+        static Vector3f getOrthogonal(const Vector3f& vec1) {
+            float xAbs = abs(vec1.x);
+            float yAbs = abs(vec1.y);
+            float zAbs = abs(vec1.z);
+            float min = std::min(xAbs, std::min(yAbs , zAbs));
+            if (min == xAbs) {
+                return Vector3f(0, -vec1.z, vec1.y);
+            } else if (min == yAbs) {
+                return Vector3f(-vec1.z, 0, vec1.x);
+            } else {
+                return Vector3f(-vec1.y, vec1.x, 0);
+
+            }
         }
     }
 }
