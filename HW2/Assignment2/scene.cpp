@@ -203,10 +203,13 @@ namespace fst
         {
             std::vector<struct Transformation> transformations = ParseTransformationString(sphere.transformations);
             // transformation
-            math::Vector3f center3F = vertex_data[sphere.center_vertex_id-1];
+            math::Vector3f center3F = vertex_data[sphere.center_vertex_id - 1];
             math::Vector4f center(center3F.x, center3F.y, center3F.z, 1);
             std::vector<Rotation> rot;
             float r = sphere.radius;
+            if (sphere.transformations == "t4 s4 t5") {
+                std::cout<<"debug" << std::endl;
+            }
             
             for (auto& transformation : transformations) {
                 if (transformation.type == TRANSLATE) {
@@ -221,7 +224,7 @@ namespace fst
                     Matrix m = s.getScalingMatrix();
                     Matrix t (-center.x, -center.y, -center.z, TRANSLATE);
                     Matrix tBack (center.x, center.y, center.z, TRANSLATE);
-                    center = tBack * m * t * center;
+                    center =  m * center;
                     r = m.m[0][0] * r;
                 }
                 
@@ -305,6 +308,7 @@ namespace fst
     }
 
     std::vector<struct Transformation> Scene::ParseTransformationString (std::string transformationString) {
+        std::cout << transformationString << std::endl;
         std::vector<struct Transformation> transformations;
         std::istringstream stream(transformationString);
         std::string token;
@@ -322,6 +326,7 @@ namespace fst
                 Transformation t = {ROTATE, std::atoi(index.c_str()) - 1};
                 transformations.push_back(t);
             }
+            std::cout << std::endl;
         }
         return transformations;
     }
