@@ -207,10 +207,6 @@ namespace fst
             math::Vector4f center(center3F.x, center3F.y, center3F.z, 1);
             std::vector<Rotation> rot;
             float r = sphere.radius;
-            if (sphere.transformations == "t4 s4 t5") {
-                std::cout<<"debug" << std::endl;
-            }
-            
             for (auto& transformation : transformations) {
                 if (transformation.type == TRANSLATE) {
                     Translation t = translations[transformation.index];
@@ -308,7 +304,6 @@ namespace fst
     }
 
     std::vector<struct Transformation> Scene::ParseTransformationString (std::string transformationString) {
-        std::cout << transformationString << std::endl;
         std::vector<struct Transformation> transformations;
         std::istringstream stream(transformationString);
         std::string token;
@@ -326,7 +321,6 @@ namespace fst
                 Transformation t = {ROTATE, std::atoi(index.c_str()) - 1};
                 transformations.push_back(t);
             }
-            std::cout << std::endl;
         }
         return transformations;
     }
