@@ -46,6 +46,7 @@ namespace fst
             center = tMatrix * center;
             for (int i = 0; i < rot.size(); i++) {
                 Rotation r = rot[i]; 
+                r.angle *= -1;
                 Matrix m = r.getRotationMatrix();
                 intersection4P =  m * intersection4P;
                 // center = m  * center;
