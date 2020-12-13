@@ -41,18 +41,18 @@ namespace fst
             Translation t(-center.x, -center.y, -center.z);
             Matrix tMatrix  = t.getTranslationMatrix();
             Matrix tBack = t.getInverseTranslationMatrix();
-            // Matrix tBackMatrix = t.getInverseTranslationMatrix();
-            intersection4P = tMatrix * intersection4P;
-            center = tMatrix * center;
+            // intersection4P = tMatrix * intersection4P;
+            // center = tMatrix * center;
             for (int i = 0; i < rot.size(); i++) {
                 Rotation r = rot[i]; 
                 r.angle *= -1;
                 Matrix m = r.getRotationMatrix();
                 intersection4P =  m * intersection4P;
+                center = m * center;
                 // center = m  * center;
             }
-            intersection4P = tBack * intersection4P;
-            math::Vector3f normal(intersection4P.x - m_center.x, intersection4P.y - m_center.y, intersection4P.z - m_center.z);
+            // intersection4P = tBack * intersection4P;
+            math::Vector3f normal(intersection4P.x - center.x, intersection4P.y - center.y, intersection4P.z - center.z);
             normal = fst::math::normalize(normal);
             // calculate u, v
             float theta = acos((normal.y));

@@ -13,6 +13,11 @@ namespace fst
             float x, y, z;
 
             Vector3f() = default;
+            Vector3f(const Vector3f& vec) {
+                x = vec.x;
+                y = vec.y;
+                z = vec.z;
+            }
             explicit Vector3f(float a)
                 : x(a)
                 , y(a)

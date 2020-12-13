@@ -165,12 +165,15 @@ namespace fst
                 else { 
                     Rotation r = rotations[transformation.index];
                     Matrix m = r.getRotationMatrix();
-                    Translation t(-r.rx, -r.ry, -r.rz);
-                    Matrix tMatrix  = t.getTranslationMatrix();
-                    Matrix tBackMatrix = t.getInverseTranslationMatrix();
-                    result0 = tBackMatrix * m * tMatrix * result0;
-                    result1 = tBackMatrix * m * tMatrix * result1;
-                    result2 = tBackMatrix * m * tMatrix * result2; 
+                    // Translation t(-r.rx, -r.ry, -r.rz);
+                    // Matrix tMatrix  = t.getTranslationMatrix();
+                    // Matrix tBackMatrix = t.getInverseTranslationMatrix();
+                    // result0 = tBackMatrix * m * tMatrix * result0;
+                    // result1 = tBackMatrix * m * tMatrix * result1;
+                    // result2 = tBackMatrix * m * tMatrix * result2; 
+                    result0 = m * result0;
+                    result1 = m * result1;
+                    result2 = m * result2;
                 }
             }
             v0 = result0;
