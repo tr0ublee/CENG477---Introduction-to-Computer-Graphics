@@ -28,7 +28,11 @@ namespace fst
             return false;
         }
 
-        auto distance = a - sqrtf(x);
+        auto sqrtf_x = sqrtf(x);
+        auto distance = a - sqrtf_x;
+        if (distance < 0.0f) {
+            distance = a + sqrtf_x;
+        }
         if (distance > 0.0f && distance < max_distance)
         {
             // Fill the intersection record.
