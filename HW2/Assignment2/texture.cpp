@@ -68,11 +68,11 @@ namespace fst
     if (m_interpolation == BILINEAR) {
       int p = floor(i);
       int q = floor(j);
-      if (p == m_width - 1){
-        p--;
+      if (p >= m_width - 1){
+        p = m_width - 2;
       }
-      if (q == m_height - 1){
-        q--;
+      if (q >= m_height - 1){
+        q = m_height - 2;
       }
       float dx = i - p;
       float dy = j - q;
@@ -104,8 +104,6 @@ namespace fst
       color.z = m_image[index+2];
       return color;
     }
-
-
   }
 
   Interpolation Texture::getInterpolation() const {
