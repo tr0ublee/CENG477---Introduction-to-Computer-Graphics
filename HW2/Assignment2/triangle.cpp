@@ -46,7 +46,7 @@ namespace fst
             hit_record.v = w2;
 
             /** If has a texture, apply Barycentric and replace (u,v) **/
-            if (hit_record.texture_id >= 0 && texMap.size() > 0) {
+            if (hit_record.texture_id >= 0 && texMap.size() >= 3) {
                 double  a,b,c,d,e,f,g,h,i,j,k,l;
                 double alpha,beta,gamma,t;
                 
