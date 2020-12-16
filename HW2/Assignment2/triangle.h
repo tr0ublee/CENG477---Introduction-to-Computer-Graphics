@@ -15,9 +15,9 @@ namespace fst
     {
     public:
         int texture_id;
-        std::vector<math::Vector2f*> texMap;
+        std::vector<math::Vector2f> texMap;
 
-        Triangle(const math::Vector3f& v0, const math::Vector3f& edge1, const math::Vector3f& edge2, int texture_id, std::vector<math::Vector2f*> texMap);
+        Triangle(const math::Vector3f& v0, const math::Vector3f& edge1, const math::Vector3f& edge2, int texture_id, std::vector<math::Vector2f> & texMap);
 
         bool intersect(const Ray& ray, HitRecord& hit_record, float max_distance) const override;
         bool intersectShadowRay(const Ray& ray, float max_distance) const override;
