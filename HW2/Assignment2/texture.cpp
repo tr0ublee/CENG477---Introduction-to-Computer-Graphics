@@ -87,6 +87,7 @@ namespace fst
       return color;
 
     } else {
+      //
       float i = u * (m_width);
       float j = v * (m_height);
       int imageX = std::round(i);

@@ -4,7 +4,7 @@
 
 namespace fst
 {
-    Triangle::Triangle(const math::Vector3f& v0, const math::Vector3f& edge1, const math::Vector3f& edge2, int texture_id, std::vector<math::Vector2f*> texMap)
+    Triangle::Triangle(const math::Vector3f& v0, const math::Vector3f& edge1, const math::Vector3f& edge2, int texture_id, std::vector<math::Vector2f>& texMap)
         : m_v0(v0)
         , m_edge1(edge1)
         , m_edge2(edge2)
@@ -89,12 +89,12 @@ namespace fst
                 beta = (j*eimhf+k*gfmdi+l*dhmeg)/M;
 
                 float ua, ub, uc, va, vb, vc;
-                ua = texMap[0] -> x;
-                va = texMap[0] -> y;
-                ub = texMap[1] -> x;
-                vb = texMap[1] -> y;
-                uc = texMap[2] -> x;
-                vc = texMap[2] -> y;
+                ua = texMap[0] . x;
+                va = texMap[0] . y;
+                ub = texMap[1] . x;
+                vb = texMap[1] . y;
+                uc = texMap[2] . x;
+                vc = texMap[2] . y;
                 hit_record.u = ua + beta * (ub-ua) + gamma * (uc-ua);
                 hit_record.v = va + beta * (vb-va) + gamma * (vc-va);
             }

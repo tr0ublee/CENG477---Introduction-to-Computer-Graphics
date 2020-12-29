@@ -75,9 +75,8 @@ namespace fst
             std::vector<struct Transformation> transformations = ParseTransformationString(mesh.transformations);
 
             std::vector<Triangle> triangles;
-            std::vector<math::Vector2f*> texMap;
-            for (auto& face : mesh.faces)
-            {   
+            for (auto& face : mesh.faces){   
+                std::vector<math::Vector2f> texMap;
                 // transformation
                 math::Vector3f v0 = vertex_data[face.v0_id - 1];
                 math::Vector3f v1 = vertex_data[face.v1_id - 1];
@@ -118,13 +117,13 @@ namespace fst
                 /** Transformation End **/
 
                 if (tex_coord_data.size() >= face.v0_id) {
-                    texMap.push_back(&tex_coord_data[face.v0_id-1]);
+                    texMap.push_back(tex_coord_data[face.v0_id-1]);
                 }
                 if (tex_coord_data.size() >= face.v1_id) {
-                    texMap.push_back(&tex_coord_data[face.v1_id-1]);  
+                    texMap.push_back(tex_coord_data[face.v1_id-1]);  
                 }
                 if (tex_coord_data.size() >= face.v2_id) {
-                    texMap.push_back(&tex_coord_data[face.v2_id-1]);
+                    texMap.push_back(tex_coord_data[face.v2_id-1]);
                 }
 
                 triangles.push_back(Triangle(
@@ -182,16 +181,16 @@ namespace fst
             /** Transformation End **/
 
             std::vector<Triangle> triangles;
-            std::vector<math::Vector2f*> texMap;
+            std::vector<math::Vector2f> texMap;
 
             if (tex_coord_data.size() >= triangle.indices.v0_id) {
-                texMap.push_back(&tex_coord_data[triangle.indices.v0_id-1]);
+                texMap.push_back(tex_coord_data[triangle.indices.v0_id-1]);
             }
             if (tex_coord_data.size() >= triangle.indices.v1_id) {
-                texMap.push_back(&tex_coord_data[triangle.indices.v1_id-1]);  
+                texMap.push_back(tex_coord_data[triangle.indices.v1_id-1]);  
             }
             if (tex_coord_data.size() >= triangle.indices.v2_id) {
-                texMap.push_back(&tex_coord_data[triangle.indices.v2_id-1]);
+                texMap.push_back(tex_coord_data[triangle.indices.v2_id-1]);
             }
             triangles.push_back(Triangle(
                 v0,

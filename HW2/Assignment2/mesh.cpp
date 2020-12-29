@@ -30,6 +30,8 @@ namespace fst
                 hit_record = temp;
 		        hit_record.material_id = m_material_id;
                 hit_record.texture_id = texture_id;
+                hit_record.u = temp.u;
+                hit_record.v = temp.v;
             }
         }
         return min_distance != max_distance;
