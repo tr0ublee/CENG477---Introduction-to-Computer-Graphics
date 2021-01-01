@@ -19,6 +19,14 @@ namespace parser
             return retVal;
         }
 
+        inline Vec3f operator/(float a) {
+            Vec3f retVal;
+            retVal.x = x / a;
+            retVal.y = y / a;
+            retVal.z = z / a;
+            return retVal;
+        }
+
         inline Vec3f operator+(const Vec3f& rhs) {
             Vec3f retVal;
             retVal.x = x + rhs.x;
@@ -26,6 +34,37 @@ namespace parser
             retVal.z = z + rhs.z;
             return retVal;
         }
+
+        inline Vec3f operator-(const Vec3f& rhs) {
+            Vec3f retVal;
+            retVal.x = x - rhs.x;
+            retVal.y = y - rhs.y;
+            retVal.z = z - rhs.z;
+            return retVal;
+        }
+
+        Vec3f() {}
+        Vec3f(float X, float Y, float Z) {
+            x = X;
+            y = Y;
+            z = Z;
+        }
+
+        void normalize() {
+            int length = sqrt(x*x + y*y + z*z);
+            x /= length;
+            y /= length;
+            z /= length;
+        }
+        
+        static Vec3f cross(const Vec3f& vec1, const Vec3f& vec2) {
+            Vec3f retVal;
+            retVal.x = vec1.y * vec2.z - vec1.z * vec2.y;
+            retVal.y =  vec1.z * vec2.x - vec1.x * vec2.z;
+            retVal.z = vec1.x * vec2.y - vec1.y * vec2.x;
+            return retVal;
+        }
+
         float x, y, z;
     };
 
@@ -113,6 +152,7 @@ namespace parser
         std::vector<PointLight> point_lights;
         std::vector<Material> materials;
         std::vector<Vec3f> vertex_data;
+        std::vector<Vec3f> vnormal_data; // vertex normal, our own data. This is filled in the main.cpp fillVertexNormals func.
         std::vector<Vec3f> translations;
         std::vector<Vec3f> scalings;
         std::vector<Vec4f> rotations;

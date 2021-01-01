@@ -2,6 +2,11 @@
 #include "parser.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <stdio.h>
+#include <string.h>
+#define TRANSLATE "Translation"
+#define SCALE "Scaling"
+#define ROTATE "Rotation"
 
 using namespace std;
 
@@ -24,10 +29,15 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
+void init() {
+    glEnable(GL_DEPTH_TEST);
+	glShadeModel(GL_SMOOTH);
+}
 
 void initCamera() {
     parser::Camera& cam = scene.camera;
     const parser::Vec3f center = cam.position + cam.gaze * cam.near_distance; 
+    glViewport(0, 0, cam.image_width, cam.image_height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(  cam.position.x, cam.position.y, cam.position.z, 
@@ -39,6 +49,125 @@ void initCamera() {
     glFrustum(cam.near_plane.x, cam.near_plane.y, cam.near_plane.z, cam.near_plane.w, cam.near_distance, cam.far_distance);
 }
 
+void setColors() {
+    GLfloat ambColor[] = {1.0, 1.0, 1.0, 1.0} ;
+    GLfloat diffColor[] = {0.4, 0.2, 0.0, 1.0} ;
+    GLfloat specColor[] = {0.3, 0.3, 0.3, 1.0} ;
+    GLfloat specExp[] = {5};
+    glMaterialfv(GL_FRONT , GL_AMBIENT , ambColor);
+    glMaterialfv(GL_FRONT , GL_DIFFUSE , diffColor);
+    glMaterialfv(GL_FRONT , GL_SPECULAR , specColor);
+    glMaterialfv(GL_FRONT , GL_SHININESS , specExp);
+}
+
+void drawObject() {
+	static bool firstTime = true;
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0, 0, 0, 1);
+	glClearDepth(1.0f);
+	glClearStencil(0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	static int vertexPosDataSizeInBytes;
+	
+	if (firstTime)
+	{
+		firstTime = false;
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		GLuint indices[] = {
+			0, 1, 2, // front
+			3, 0, 2, // front
+			4, 7, 6, // back
+			5, 4, 6, // back
+			0, 3, 4, // left
+			3, 7, 4, // left
+			2, 1, 5, // right
+			6, 2, 5, // right
+			3, 2, 7, // top
+			2, 6, 7, // top
+			0, 4, 1, // bottom
+			4, 5, 1  // bottom
+		};
+
+		GLfloat vertexPos[] = {
+			-0.5, -0.5,  0.5, // 0: bottom-left-front
+			0.5, -0.5,  0.5, // 1: bottom-right-front
+			0.5,  0.5,  0.5, // 2: top-right-front
+			-0.5,  0.5,  0.5, // 3: top-left-front
+			-0.5, -0.5, -0.5, // 4: bottom-left-back
+			0.5, -0.5, -0.5, // 5: bottom-right-back
+			0.5,  0.5, -0.5, // 6: top-right-back
+			-0.5,  0.5, -0.5, // 7: top-left-back
+		};
+
+		GLuint vertexAttribBuffer, indexBuffer;
+        
+		glGenBuffers(1, &vertexAttribBuffer);
+		glGenBuffers(1, &indexBuffer);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexAttribBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+		vertexPosDataSizeInBytes = sizeof(vertexPos);
+		int indexDataSizeInBytes = sizeof(indices);
+		
+		glBufferData(GL_ARRAY_BUFFER, vertexPosDataSizeInBytes, 0, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexPosDataSizeInBytes, vertexPos);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexDataSizeInBytes, indices, GL_STATIC_DRAW);
+	}
+
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+}
+
+void turnOnLights() {
+    glEnable(GL_LIGHTING);
+    GLfloat ambient[4] = { scene.ambient_light.x,  scene.ambient_light.y,  scene.ambient_light.z, 1.0f};
+    uint count = 0;
+    for (parser::PointLight& pl : scene.point_lights) {
+        GLfloat pos[4] = {pl.position.x, pl.position.y, pl.position.z, 1.0f};
+        GLfloat intensity[4] = {pl.intensity.x, pl.intensity.y, pl.intensity.z, 1.0f};
+        glEnable(GL_LIGHT0 + count);
+        glLightfv(GL_LIGHT0 + count, GL_POSITION, pos);
+        glLightfv(GL_LIGHT0 + count, GL_DIFFUSE, intensity);
+        glLightfv(GL_LIGHT0 + count, GL_SPECULAR, intensity);
+        glLightfv(GL_LIGHT0 + count, GL_AMBIENT, ambient);
+        count++;
+    }
+}
+
+void fillVertexNormals() {
+    size_t vertexSize = scene.vertex_data.size();
+    uint* count = new uint[vertexSize];
+    memset(count, 0, vertexSize);
+    for (size_t i = 0; i< vertexSize; i++) {
+        scene.vnormal_data.push_back(parser::Vec3f(0.0f, 0.0f, 0.0f));
+    }
+    for (parser::Mesh& mesh : scene.meshes) {
+        for (parser::Face& face : mesh.faces) {
+            // Calculate face's normal.
+            size_t v0ID = face.v0_id - 1;
+            size_t v1ID = face.v1_id - 1;
+            size_t v2ID = face.v2_id - 1;
+            count[v0ID]++;
+            count[v1ID]++;
+            count[v2ID]++;
+            parser::Vec3f v0 = scene.vertex_data[v0ID];
+            parser::Vec3f v1 = scene.vertex_data[v1ID];
+            parser::Vec3f v2 = scene.vertex_data[v2ID];
+            parser::Vec3f edge1 = v1 - v0;
+            parser::Vec3f edge2 = v2 - v0;
+            parser::Vec3f n = parser::Vec3f::cross(edge1, edge2);
+            n.normalize();
+            // Compute vertex normals
+            scene.vnormal_data[v0ID] = (scene.vnormal_data[v0ID] * (count[v0ID] - 1) + n) / count[v0ID];
+            scene.vnormal_data[v1ID] = (scene.vnormal_data[v1ID] * (count[v1ID] - 1) + n) / count[v1ID];
+            scene.vnormal_data[v2ID] = (scene.vnormal_data[v2ID] * (count[v2ID] - 1) + n) / count[v2ID];
+        }
+    }
+    delete count;
+}
 
 int main(int argc, char* argv[]) {
 
@@ -69,10 +198,16 @@ int main(int argc, char* argv[]) {
 
     glfwSetKeyCallback(win, keyCallback);
 
+    fillVertexNormals();
+    init();
     initCamera();
+    turnOnLights();
     while(!glfwWindowShouldClose(win)) {
         glfwWaitEvents();
-
+        // for every object
+            setColors();
+            drawObject();
+        //
         glfwSwapBuffers(win);
     }
 
