@@ -11,16 +11,47 @@ namespace parser
     //so that you are not enforced to adopt any style or design.
     struct Vec3f
     {
+        inline Vec3f operator*(float a) {
+            Vec3f retVal;
+            retVal.x = x * a;
+            retVal.y = y * a;
+            retVal.z = z * a;
+            return retVal;
+        }
+
+        inline Vec3f operator+(const Vec3f& rhs) {
+            Vec3f retVal;
+            retVal.x = x + rhs.x;
+            retVal.y = y + rhs.y;
+            retVal.z = z + rhs.z;
+            return retVal;
+        }
         float x, y, z;
     };
 
     struct Vec3i
     {
+        inline Vec3i operator*(int a) {
+            Vec3i retVal;
+            retVal.x = x * a;
+            retVal.y = y * a;
+            retVal.z = z * a;
+            return retVal;
+        }
         int x, y, z;
     };
 
     struct Vec4f
     {
+        inline Vec4f operator*(float a) {
+            Vec4f retVal;
+            retVal.x = x * a;
+            retVal.y = y * a;
+            retVal.z = z * a;
+            retVal.w = w * a;
+
+            return retVal;
+        }
         float x, y, z, w;
     };
 

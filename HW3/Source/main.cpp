@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+using namespace std;
+
 //////-------- Global Variables -------/////////
 
 GLuint gpuVertexBuffer;
@@ -22,8 +24,26 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
+
+void initCamera() {
+    parser::Camera& cam = scene.camera;
+    const parser::Vec3f center = cam.position + cam.gaze * cam.near_distance; 
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(  cam.position.x, cam.position.y, cam.position.z, 
+                center.x, center.y, center.z, 
+                cam.up.x, cam.up.y, cam.up.z);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    // easier than gluPerspective 
+    glFrustum(cam.near_plane.x, cam.near_plane.y, cam.near_plane.z, cam.near_plane.w, cam.near_distance, cam.far_distance);
+}
+
+
 int main(int argc, char* argv[]) {
+
     scene.loadFromXml(argv[1]);
+
 
     glfwSetErrorCallback(errorCallback);
 
@@ -49,6 +69,7 @@ int main(int argc, char* argv[]) {
 
     glfwSetKeyCallback(win, keyCallback);
 
+    initCamera();
     while(!glfwWindowShouldClose(win)) {
         glfwWaitEvents();
 
