@@ -64,41 +64,72 @@ void drawObject() {
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	static int vertexPosDataSizeInBytes;
-	
+    static int vertexNormalPosDataSizeInBytes;
+	static int indiceCount = 0;
+
     static bool firstTime = true;
 
 	if (firstTime)
 	{
 		firstTime = false;
-	    vertexPosDataSizeInBytes = sizeof(vertexPos);
-		int indexDataSizeInBytes = sizeof(indices);
+
 		glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
 
-		GLuint indices[] = new GLuint(mesh.faces.size());
+        int vertexCount = scene.vertex_data.size();
+        
+        for (parser::Mesh& mesh : scene.meshes) {
+            for (parser::Face& face : mesh.faces) {
+                indiceCount += 3;
+            }
+        }
 
-		GLfloat vertexPos[] = vertex_data;
+		GLuint indices[indiceCount]; // faces;
+		GLfloat vertexPos[vertexCount * 3]; // vertex_data;
+        GLfloat vertexNormalPos[vertexCount * 3]; // vnormal_data;
 
-        GLfloat vertexNormalPos[] = vnormal_data;
+        int indiceIndex = 0;
+        for (parser::Mesh& mesh : scene.meshes) {
+            for (parser::Face& face : mesh.faces) {
+                indices[indiceIndex]     = face.v0_id - 1;
+                indices[indiceIndex + 1] = face.v1_id - 1;
+                indices[indiceIndex + 2] = face.v2_id - 1;
+                indiceIndex += 3;
+            }
+        }
 
-		GLuint vertexBuffer, indexBuffer, normalBuffer;
+        for (int i=0; i < vertexCount; i++) {
+            parser::Vec3f vertex = scene.vertex_data[i];
+            vertexPos[i * 3]   = vertex.x;
+            vertexPos[i * 3 + 1] = vertex.y;
+            vertexPos[i * 3 + 2] = vertex.z;
+
+            parser::Vec3f normal = scene.vnormal_data[i];
+            vertexNormalPos[i * 3]   = normal.x;
+            vertexNormalPos[i * 3 + 1] = normal.y;
+            vertexNormalPos[i * 3 + 2] = normal.z;
+        }
+
+	    vertexPosDataSizeInBytes = sizeof(vertexPos);
+        vertexNormalPosDataSizeInBytes = sizeof(vertexNormalPos);
+		int indexDataSizeInBytes = sizeof(indices);
+
+		GLuint vertexBuffer, indexBuffer;
         
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, vertexPosDataSizeInBytes, vertexPos, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexPosDataSizeInBytes + vertexNormalPosDataSizeInBytes, 0, GL_STATIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexPosDataSizeInBytes, vertexPos);
+		glBufferSubData(GL_ARRAY_BUFFER, vertexPosDataSizeInBytes, vertexNormalPosDataSizeInBytes, vertexNormalPos);
 
 		glGenBuffers(1, &indexBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexDataSizeInBytes, indices, GL_STATIC_DRAW);
-
-        glGenBuffers(1, &normalBuffer);
-        glBindBuffer(GL_NORMAL_BUFFER, normalBuffer);
-        glBufferData(GL_NORMAL_BUFFER, vertexPosDataSizeInBytes, vertexNormalPos, GL_STATIC_DRAW);
 	}
 
 	glVertexPointer(3, GL_FLOAT, 0, 0);
-    glNormalPointer(GL_FLOAT, 0, 0);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glNormalPointer(GL_FLOAT, 0, reinterpret_cast<void*>(vertexPosDataSizeInBytes));
+	glDrawElements(GL_TRIANGLES, indiceCount * 3, GL_UNSIGNED_INT, 0);
 }
 
 void turnOnLights() {
