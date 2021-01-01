@@ -61,63 +61,43 @@ void setColors() {
 }
 
 void drawObject() {
-	static bool firstTime = true;
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0, 0, 0, 1);
-	glClearDepth(1.0f);
-	glClearStencil(0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	static int vertexPosDataSizeInBytes;
 	
+    static bool firstTime = true;
+
 	if (firstTime)
 	{
 		firstTime = false;
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		GLuint indices[] = {
-			0, 1, 2, // front
-			3, 0, 2, // front
-			4, 7, 6, // back
-			5, 4, 6, // back
-			0, 3, 4, // left
-			3, 7, 4, // left
-			2, 1, 5, // right
-			6, 2, 5, // right
-			3, 2, 7, // top
-			2, 6, 7, // top
-			0, 4, 1, // bottom
-			4, 5, 1  // bottom
-		};
-
-		GLfloat vertexPos[] = {
-			-0.5, -0.5,  0.5, // 0: bottom-left-front
-			0.5, -0.5,  0.5, // 1: bottom-right-front
-			0.5,  0.5,  0.5, // 2: top-right-front
-			-0.5,  0.5,  0.5, // 3: top-left-front
-			-0.5, -0.5, -0.5, // 4: bottom-left-back
-			0.5, -0.5, -0.5, // 5: bottom-right-back
-			0.5,  0.5, -0.5, // 6: top-right-back
-			-0.5,  0.5, -0.5, // 7: top-left-back
-		};
-
-		GLuint vertexAttribBuffer, indexBuffer;
-        
-		glGenBuffers(1, &vertexAttribBuffer);
-		glGenBuffers(1, &indexBuffer);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vertexAttribBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-		vertexPosDataSizeInBytes = sizeof(vertexPos);
+	    vertexPosDataSizeInBytes = sizeof(vertexPos);
 		int indexDataSizeInBytes = sizeof(indices);
-		
-		glBufferData(GL_ARRAY_BUFFER, vertexPosDataSizeInBytes, 0, GL_STATIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexPosDataSizeInBytes, vertexPos);
+		glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+
+		GLuint indices[] = new GLuint(mesh.faces.size());
+
+		GLfloat vertexPos[] = vertex_data;
+
+        GLfloat vertexNormalPos[] = vnormal_data;
+
+		GLuint vertexBuffer, indexBuffer, normalBuffer;
+        
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, vertexPosDataSizeInBytes, vertexPos, GL_STATIC_DRAW);
+
+		glGenBuffers(1, &indexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexDataSizeInBytes, indices, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &normalBuffer);
+        glBindBuffer(GL_NORMAL_BUFFER, normalBuffer);
+        glBufferData(GL_NORMAL_BUFFER, vertexPosDataSizeInBytes, vertexNormalPos, GL_STATIC_DRAW);
 	}
 
 	glVertexPointer(3, GL_FLOAT, 0, 0);
+    glNormalPointer(GL_FLOAT, 0, 0);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
@@ -167,6 +147,7 @@ void fillVertexNormals() {
         }
     }
     delete count;
+    
 }
 
 int main(int argc, char* argv[]) {
