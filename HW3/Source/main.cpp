@@ -66,10 +66,12 @@ void setColor(int materialId) {
     GLfloat diffColor[4] = {material.diffuse.x, material.diffuse.y, material.diffuse.z, 1.0};
     GLfloat specColor[4] = {material.specular.x, material.specular.y, material.specular.z, 1.0};
     GLfloat specExp[1] = {material.phong_exponent};
+
     glMaterialfv(GL_FRONT , GL_AMBIENT , ambColor);
     glMaterialfv(GL_FRONT , GL_DIFFUSE , diffColor);
     glMaterialfv(GL_FRONT , GL_SPECULAR , specColor);
     glMaterialfv(GL_FRONT , GL_SHININESS , specExp);
+    
 }
 
 void transform(const parser::Transformation& ts) {
@@ -272,8 +274,8 @@ int main(int argc, char* argv[]) {
 
     fillVertexNormals();
     init();
-    initCamera();
     turnOnLights();
+    initCamera();
     while(!glfwWindowShouldClose(win)) {
         glfwWaitEvents();
 
