@@ -49,11 +49,12 @@ void initCamera() {
     glFrustum(cam.near_plane.x, cam.near_plane.y, cam.near_plane.z, cam.near_plane.w, cam.near_distance, cam.far_distance);
 }
 
-void setColors() {
-    GLfloat ambColor[] = {1.0, 1.0, 1.0, 1.0} ;
-    GLfloat diffColor[] = {0.4, 0.2, 0.0, 1.0} ;
-    GLfloat specColor[] = {0.3, 0.3, 0.3, 1.0} ;
-    GLfloat specExp[] = {5};
+void setColor(int materialId) {
+    const parser::Material& material = scene.materials[materialId-1];
+    GLfloat ambColor[4] = {material.ambient.x, material.ambient.y, material.ambient.z, 1.0};
+    GLfloat diffColor[4] = {material.diffuse.x, material.diffuse.y, material.diffuse.z, 1.0};
+    GLfloat specColor[4] = {material.specular.x, material.specular.y, material.specular.z, 1.0};
+    GLfloat specExp[1] = {material.phong_exponent};
     glMaterialfv(GL_FRONT , GL_AMBIENT , ambColor);
     glMaterialfv(GL_FRONT , GL_DIFFUSE , diffColor);
     glMaterialfv(GL_FRONT , GL_SPECULAR , specColor);
@@ -61,10 +62,13 @@ void setColors() {
 }
 
 void drawObject() {
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(scene.background_color.x, scene.background_color.y, scene.background_color.z, 1);
+	glClearDepth(1.0f);
+	glClearStencil(0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	static int vertexPosDataSizeInBytes;
     static int vertexNormalPosDataSizeInBytes;
+    static int indexDataSizeInBytes;
 	static int indiceCount = 0;
 
     static bool firstTime = true;
@@ -99,23 +103,28 @@ void drawObject() {
         }
 
         for (int i=0; i < vertexCount; i++) {
+            int index = i * 3;
             parser::Vec3f vertex = scene.vertex_data[i];
-            vertexPos[i * 3]   = vertex.x;
-            vertexPos[i * 3 + 1] = vertex.y;
-            vertexPos[i * 3 + 2] = vertex.z;
+            vertexPos[index]   = vertex.x;
+            vertexPos[index + 1] = vertex.y;
+            vertexPos[index + 2] = vertex.z;
 
             parser::Vec3f normal = scene.vnormal_data[i];
-            vertexNormalPos[i * 3]   = normal.x;
-            vertexNormalPos[i * 3 + 1] = normal.y;
-            vertexNormalPos[i * 3 + 2] = normal.z;
+            vertexNormalPos[index]   = normal.x;
+            vertexNormalPos[index + 1] = normal.y;
+            vertexNormalPos[index + 2] = normal.z;
         }
 
 	    vertexPosDataSizeInBytes = sizeof(vertexPos);
         vertexNormalPosDataSizeInBytes = sizeof(vertexNormalPos);
-		int indexDataSizeInBytes = sizeof(indices);
+		indexDataSizeInBytes = sizeof(indices);
 
 		GLuint vertexBuffer, indexBuffer;
-        
+        /*
+            vertexBuffer:
+                [0:vertexPosDataSizeInBytes] = vertexPos
+                [vertexPosDataSizeInBytes : vertexNormalPosDataSizeInBytes] = vertexNormalPos
+        */
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, vertexPosDataSizeInBytes + vertexNormalPosDataSizeInBytes, 0, GL_STATIC_DRAW);
@@ -129,7 +138,23 @@ void drawObject() {
 
 	glVertexPointer(3, GL_FLOAT, 0, 0);
     glNormalPointer(GL_FLOAT, 0, reinterpret_cast<void*>(vertexPosDataSizeInBytes));
-	glDrawElements(GL_TRIANGLES, indiceCount * 3, GL_UNSIGNED_INT, 0);
+    // glDrawElements(GL_TRIANGLES, indiceCount/2 , GL_UNSIGNED_INT, 0);
+    // glDrawElements(GL_TRIANGLES, indiceCount/2 , GL_UNSIGNED_INT, reinterpret_cast<void*>(indexDataSizeInBytes / 2));
+
+    size_t offset = 0;
+    
+    for (parser::Mesh& mesh : scene.meshes) {
+        int meshIndiceCount = 0;
+        for (parser::Face& face : mesh.faces) {
+            meshIndiceCount += 3;
+
+        }
+        // set color
+        setColor(mesh.material_id);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glDrawElements(GL_TRIANGLES, meshIndiceCount , GL_UNSIGNED_INT, reinterpret_cast<const void*>(offset));
+        offset += sizeof(GLuint) * meshIndiceCount;
+    }
 }
 
 void turnOnLights() {
@@ -216,10 +241,9 @@ int main(int argc, char* argv[]) {
     turnOnLights();
     while(!glfwWindowShouldClose(win)) {
         glfwWaitEvents();
-        // for every object
-            setColors();
-            drawObject();
-        //
+
+        drawObject();
+
         glfwSwapBuffers(win);
     }
 

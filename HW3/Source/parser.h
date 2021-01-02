@@ -51,7 +51,7 @@ namespace parser
         }
 
         void normalize() {
-            int length = sqrt(x*x + y*y + z*z);
+            float length = sqrt(x*x + y*y + z*z);
             x /= length;
             y /= length;
             z /= length;
