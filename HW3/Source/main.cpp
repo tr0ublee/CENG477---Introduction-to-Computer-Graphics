@@ -56,6 +56,8 @@ void initCamera() {
     glLoadIdentity();
     // easier than gluPerspective 
     glFrustum(cam.near_plane.x, cam.near_plane.y, cam.near_plane.z, cam.near_plane.w, cam.near_distance, cam.far_distance);
+    glMatrixMode(GL_MODELVIEW); // do this for transformations
+
 }
 
 void setColor(int materialId) {
@@ -70,16 +72,30 @@ void setColor(int materialId) {
     glMaterialfv(GL_FRONT , GL_SHININESS , specExp);
 }
 
+void transform(const parser::Transformation& ts) {
+    if (ts.transformation_type == TRANSLATE) {
+        const parser::Vec3f& translation = scene.translations[ts.id - 1];
+        glTranslatef(translation.x, translation.y, translation.z);
+
+    }else if (ts.transformation_type == ROTATE) {
+        const parser::Vec4f& rotation = scene.rotations[ts.id - 1];
+        glRotatef(rotation.x,rotation.y, rotation.z, rotation.w);
+    }else {
+        const parser::Vec3f& scaling = scene.scalings[ts.id - 1];
+        glScalef(scaling.x, scaling.y, scaling.z);
+    }
+}
+
 void drawObject() {
 	glClearColor(scene.background_color.x, scene.background_color.y, scene.background_color.z, 1);
 	glClearDepth(1.0f);
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 	static int vertexPosDataSizeInBytes;
     static int vertexNormalPosDataSizeInBytes;
     static int indexDataSizeInBytes;
 	static int indiceCount = 0;
-
     static bool firstTime = true;
 
 	if (firstTime)
@@ -147,8 +163,6 @@ void drawObject() {
 
 	glVertexPointer(3, GL_FLOAT, 0, 0);
     glNormalPointer(GL_FLOAT, 0, reinterpret_cast<void*>(vertexPosDataSizeInBytes));
-    // glDrawElements(GL_TRIANGLES, indiceCount/2 , GL_UNSIGNED_INT, 0);
-    // glDrawElements(GL_TRIANGLES, indiceCount/2 , GL_UNSIGNED_INT, reinterpret_cast<void*>(indexDataSizeInBytes / 2));
 
     size_t offset = 0;
     
@@ -156,7 +170,12 @@ void drawObject() {
         int meshIndiceCount = 0;
         for (parser::Face& face : mesh.faces) {
             meshIndiceCount += 3;
-
+        }
+        glPushMatrix();
+        // transform
+        for (int i = mesh.transformations.size()-1; i >= 0; i--) {
+            parser::Transformation& ts = mesh.transformations[i];
+            transform(ts);
         }
         // set mesh type
         if (mesh.mesh_type == "Solid") {
@@ -167,6 +186,8 @@ void drawObject() {
         // set color
         setColor(mesh.material_id);
         glDrawElements(GL_TRIANGLES, meshIndiceCount , GL_UNSIGNED_INT, reinterpret_cast<const void*>(offset));
+        glPopMatrix();
+
         offset += sizeof(GLuint) * meshIndiceCount;
     }
 }
