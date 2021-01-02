@@ -32,6 +32,15 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 void init() {
     glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
+    if (scene.culling_enabled) { 
+        glEnable(GL_CULL_FACE);  
+        if (scene.culling_face) {
+            // = 1, frontface
+            glCullFace(GL_FRONT);  
+        } else {
+            glCullFace(GL_BACK);    
+        }
+    }
 }
 
 void initCamera() {
@@ -149,9 +158,14 @@ void drawObject() {
             meshIndiceCount += 3;
 
         }
+        // set mesh type
+        if (mesh.mesh_type == "Solid") {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        } else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
         // set color
         setColor(mesh.material_id);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDrawElements(GL_TRIANGLES, meshIndiceCount , GL_UNSIGNED_INT, reinterpret_cast<const void*>(offset));
         offset += sizeof(GLuint) * meshIndiceCount;
     }
