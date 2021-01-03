@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <limits.h>
 #define TRANSLATE "Translation"
 #define SCALE "Scaling"
 #define ROTATE "Rotation"
@@ -243,6 +245,31 @@ void fillVertexNormals() {
     
 }
 
+
+double lastTime;
+int nbFrames;
+
+void showFPS(GLFWwindow *pWindow, char* hostname)
+{
+    // Measure speed
+     double currentTime = glfwGetTime();
+     double delta = currentTime - lastTime;
+	 char ss[500] = {};
+     nbFrames++;
+     if (delta >= 1.0 ){ // If last cout was more than 1 sec ago
+         //cout << 1000.0/double(nbFrames) << endl;
+
+         double fps = ((double)(nbFrames)) / delta;
+
+         sprintf(ss,"CENG477 - HW3[%.2lf FPS]@%s", fps, hostname);
+
+         glfwSetWindowTitle(pWindow, ss);
+
+         nbFrames = 0;
+         lastTime = currentTime;
+     }
+}
+
 int main(int argc, char* argv[]) {
 
     scene.loadFromXml(argv[1]);
@@ -272,14 +299,19 @@ int main(int argc, char* argv[]) {
 
     glfwSetKeyCallback(win, keyCallback);
 
+    char hostname[HOST_NAME_MAX];
+    gethostname(hostname, HOST_NAME_MAX);
+
     fillVertexNormals();
     init();
     turnOnLights();
     initCamera();
     while(!glfwWindowShouldClose(win)) {
-        glfwWaitEvents();
+        glfwPollEvents();
 
         drawObject();
+        
+        showFPS(win, hostname);
 
         glfwSwapBuffers(win);
     }
