@@ -239,6 +239,10 @@ void fillVertexNormals() {
             scene.vnormal_data[v0ID] = (scene.vnormal_data[v0ID] * (count[v0ID] - 1) + n) / count[v0ID];
             scene.vnormal_data[v1ID] = (scene.vnormal_data[v1ID] * (count[v1ID] - 1) + n) / count[v1ID];
             scene.vnormal_data[v2ID] = (scene.vnormal_data[v2ID] * (count[v2ID] - 1) + n) / count[v2ID];
+            scene.vnormal_data[v0ID].normalize();
+            scene.vnormal_data[v1ID].normalize();
+            scene.vnormal_data[v2ID].normalize();
+
         }
     }
     delete count;
