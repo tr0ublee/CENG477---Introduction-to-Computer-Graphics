@@ -258,7 +258,7 @@ void showFPS(GLFWwindow *pWindow, char* hostname) {
          //cout << 1000.0/double(nbFrames) << endl;
 
          double fps = ((double)(nbFrames)) / delta;
-
+            // fixed
          sprintf(ss,"CENG477 - HW3 [%.2lf FPS]@%s", fps, hostname);
 
          glfwSetWindowTitle(pWindow, ss);
