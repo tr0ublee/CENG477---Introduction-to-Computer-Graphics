@@ -12,11 +12,8 @@
 
 using namespace std;
 
-//////-------- Global Variables -------/////////
-
-GLuint gpuVertexBuffer;
-GLuint gpuNormalBuffer;
-GLuint gpuIndexBuffer;
+double lastTime = 0.0;
+int nbFrames = 0;
 
 // Sample usage for reading an XML scene file
 parser::Scene scene;
@@ -251,12 +248,7 @@ void fillVertexNormals() {
     
 }
 
-
-double lastTime;
-int nbFrames;
-
-void showFPS(GLFWwindow *pWindow, char* hostname)
-{
+void showFPS(GLFWwindow *pWindow, char* hostname) {
     // Measure speed
      double currentTime = glfwGetTime();
      double delta = currentTime - lastTime;
