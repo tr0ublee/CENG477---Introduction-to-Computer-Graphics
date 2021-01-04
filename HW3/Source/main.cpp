@@ -42,6 +42,8 @@ void init() {
         } else {
             glCullFace(GL_BACK);    
         }
+    } else {
+        glDisable(GL_CULL_FACE);
     }
 }
 
