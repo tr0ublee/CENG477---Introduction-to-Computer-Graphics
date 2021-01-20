@@ -20,6 +20,11 @@ out vec3 vertexNormal; // For Lighting computation
 out vec3 ToLightVector; // Vector from Vertex to Light;
 out vec3 ToCameraVector; // Vector from Vertex to Camera;
 
+// Our added data 
+uniform vec3 lightPos;
+
+
+
 
 void main()
 {

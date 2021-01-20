@@ -34,6 +34,9 @@ bool lightPosFlag = false;
 // Our own data starts from now on.
 // place things that can change to global cuz it is ez
 glm::mat4 MVP; 
+glm::vec3 camPos;
+GLfloat* vertices;
+GLfloat* indices;
 
 static void errorCallback(int error, const char* description)
 {
@@ -69,27 +72,29 @@ void createMapData(int height, int width, GLfloat* vertexPos, GLfloat* indices) 
 }
 
 void initBuffers() {
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
   int vertexSize = (textureHeight+1) * (textureWidth+1);
   int indiceSize = textureHeight * textureWidth * 2 * 3;
-  GLfloat* vertices = new GLfloat[vertexSize];
-  GLfloat* indices = new GLfloat[indiceSize];
-  createMapData(textureHeight, textureWidth, vertices, indices);
+  vertices = new GLfloat[vertexSize];
+  indices = new GLfloat[indiceSize];
+  createMapData(textureHeight, textureWidth, vertices, indices, normals);
   glGenBuffers(1, &idVertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, idVertexBuffer);
   glBufferData(GL_ARRAY_BUFFER, vertexSize * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-
   glGenBuffers(1, &idIndexBuffer);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idIndexBuffer);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indiceSize * sizeof(GLfloat), indices, GL_STATIC_DRAW);
-	glVertexPointer(3, GL_FLOAT, 0, 0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),0);
+  glEnableVertexAttribArray(0);
 
 }
 
 void initCamLightMVP() {
-  glm::vec3 pos = glm::vec3(textureWidth/2, textureWidth/10, -textureWidth/4); // given in the pdf
+  camPos = glm::vec3(textureWidth/2, textureWidth/10, -textureWidth/4); // given in the pdf
   glm::vec3 gaze = glm::vec3(0,0,1); // -w
   glm::vec3 up = glm::vec3(0,1,0); // up vector will be the y direction
-  glm::mat4 viewMatrix = glm::lookAt(pos, pos+gaze, up);
+  glm::mat4 viewMatrix = glm::lookAt(camPos, camPos+gaze, up);
   float angle = 45.0f;
   float aspectRatio = 1.0f;
   float near = 0.1f;
@@ -100,6 +105,16 @@ void initCamLightMVP() {
 
 void initLight() {
   lightPos = glm::vec3(textureWidth/2, 100, textureWidth/2);
+
+}
+
+void accessUniformVars() {
+  int mvpHandle = glGetUniformLocation(idProgramShader, "MVP");
+  glUniformMatrix4fv(mvpHandle, 1, GL_FALSE, glm::value_ptr(MVP));
+  int camPosHandle = glGetUniformLocation(idProgramShader, "cameraPosition");
+  glUniform3fv(camPosHandle, 1, glm::value_ptr(camPos));
+  int lightPosHandle = glGetUniformLocation(idProgramShader, "lightPos");
+  glUniform3fv(lightPosHandle, 1, glm::value_ptr(lightPos));
 
 }
 
@@ -130,6 +145,7 @@ int main(int argc, char *argv[]) {
       exit(-1);
   }
   glfwMakeContextCurrent(win);
+  // glViewport(0,0, widthWindow, heightWindow);
 
   GLenum err = glewInit();
   if (err != GLEW_OK) {
@@ -150,8 +166,12 @@ int main(int argc, char *argv[]) {
   initCamLightMVP();
   initLight();
   initBuffers();
+  accessUniformVars();
+  glEnable(GL_DEPTH_TEST);
+  glDrawElements(GL_TRIANGLES, textureHeight * textureWidth * 2 * 3, GL_UNSIGNED_INT, 0);
 
   while(!glfwWindowShouldClose(win)) {
+    
     glfwSwapBuffers(win);
     glfwPollEvents();
   }
