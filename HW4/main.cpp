@@ -78,7 +78,7 @@ void initBuffers() {
   int indiceSize = textureHeight * textureWidth * 2 * 3;
   vertices = new GLfloat[vertexSize];
   indices = new GLfloat[indiceSize];
-  createMapData(textureHeight, textureWidth, vertices, indices, normals);
+  createMapData(textureHeight, textureWidth, vertices, indices);
   glGenBuffers(1, &idVertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, idVertexBuffer);
   glBufferData(GL_ARRAY_BUFFER, vertexSize * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
