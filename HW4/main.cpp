@@ -22,7 +22,7 @@ GLuint idVertexBuffer;
 GLuint idIndexBuffer;
 
 int textureWidth, textureHeight;
-float heightFactor;
+float heightFactor = 10.0f;
 
 // Camera camera;
 // Camera initialCamera;
@@ -43,6 +43,7 @@ GLuint vaoHandle;
 typedef struct vertexData {
   glm::vec3 pos;
   glm::vec3 normal;
+  glm::vec2 textureCoords;
 } Vertex;
 
 std::vector<Vertex> vertices;
@@ -64,7 +65,8 @@ void createMapData() {
     for (int j = 0; j <= textureWidth; j++) {
       Vertex pushed;
       pushed.pos = glm::vec3(j,0.0,i);
-      pushed.normal = glm::vec3(0.0);
+      pushed.normal = glm::vec3(0.0,1.0,0.0);
+      pushed.textureCoords = glm::vec2(1.0 - j*(1.0/textureWidth), 1.0 - i * (1.0/textureHeight));
       vertices.push_back(pushed);
     }
   }
@@ -75,7 +77,7 @@ void createMapData() {
       x+w  x+w+1
   */
   for (int i = 0 ; i <= textureHeight; i++) {
-    for (int j  = 0 ; j <= textureWidth; j++) {
+    for (int j  = 2 ; j <= textureWidth; j++) {
       int x = textureWidth * j + i ;
       int v0 = x;
       int v1 = x + textureWidth;
@@ -103,10 +105,12 @@ void initBuffers() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idIndexBuffer);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), indices.data(), GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),(void*) (0 + sizeof(glm::vec3)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*) (0 + sizeof(glm::vec3)));
   glEnableVertexAttribArray(1);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*) (0 + 2 * sizeof(glm::vec3)));
+  glEnableVertexAttribArray(2);
 }
 
 void initCamLightMVP() {
@@ -123,16 +127,25 @@ void initCamLightMVP() {
 }
 
 void initLight() {
-  lightPos = glm::vec3(textureWidth/2.0, 100.0, textureWidth/2.0);
+  lightPos = glm::vec3(textureWidth/2.0, 100.0, textureHeight/2.0);
 }
 
 void accessUniformVars() {
+  int wHandle = glGetUniformLocation(idProgramShader, "widthTexture");
+  glUniform1f(wHandle, textureWidth);
+  int hHandle = glGetUniformLocation(idProgramShader, "heightTexture");
+  glUniform1f(hHandle, textureHeight);
   int mvpHandle = glGetUniformLocation(idProgramShader, "MVP");
   glUniformMatrix4fv(mvpHandle, 1, GL_FALSE, glm::value_ptr(MVP));
   int camPosHandle = glGetUniformLocation(idProgramShader, "cameraPosition");
   glUniform3fv(camPosHandle, 1, glm::value_ptr(camPos));
   int lightPosHandle = glGetUniformLocation(idProgramShader, "lightPos");
   glUniform3fv(lightPosHandle, 1, glm::value_ptr(lightPos));
+  int heightFactorHandle = glGetUniformLocation(idProgramShader, "heightFactor");
+  glUniform1f(heightFactorHandle, heightFactor);
+  int rgbHandle = glGetUniformLocation(idProgramShader, "rgbTexture");
+  glUniform1i(rgbHandle, 0);
+
 }
 
 

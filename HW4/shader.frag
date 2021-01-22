@@ -35,14 +35,19 @@ void main() {
   int specExp = 100; // specular exponent
 
   // compute ambient component
-  vec4 ambient = vec4(0, 0, 0, 0);
+  vec4 ambient = ka * Ia;
+  
   // compute diffuse component
-  vec4 diffuse = vec4(0, 0, 0, 0);
+  float cosTheta = max(0.0f, dot(ToLightVector,vertexNormal));
+  cosTheta = 1;
+  vec4 diffuse = kd * cosTheta * Id;
   // compute specular component
-  vec4 specular = vec4(0, 0, 0, 0);
-
-  color = vec4(1.0,0.0,0.0,0.0);
+  vec3 h = (ToLightVector + ToCameraVector) / length(ToLightVector + ToCameraVector);
+  float cosAlpha = max(0.0f, dot(vertexNormal, h));
+  // vec4 specular = ks * pow(cosAlpha,specExp) * Is;
+  vec4 specular = vec4(0.0f,0.0f,0.0f,0.0f);
+  //color = vec4(0.0,1.0,0.0,0.0);
 
   // compute the color using the following equation
-  //color = vec4(clamp( textureColor.xyz * vec3(ambient + diffuse + specular), 0.0, 1.0), 1.0);
+  color = vec4(clamp( textureColor.xyz * vec3(ambient + diffuse + specular), 0.0, 1.0), 1.0);
 }

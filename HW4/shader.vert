@@ -2,6 +2,8 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 txtCoords;
+
 // Data from CPU 
 uniform mat4 MVP; // ModelViewProjection Matrix
 uniform mat4 MV; // ModelView idMVPMatrix
@@ -35,9 +37,9 @@ void main()
     // compute toLight vector vertex coordinate in VCS
     vertexNormal = normalize(normal);
     // set gl_Position variable correctly to give the transformed vertex position
-//    gl_Position = vec4(0,0,0,0); // this is a placeholder. It does not correctly set the position 
+    // gl_Position = vec4(0,0,0,0); // this is a placeholder. It does not correctly set the position 
     ToCameraVector = normalize(cameraPosition.xyz - position);
     ToLightVector = normalize(lightPos - position);
-    gl_Position = MVP * vec4(position.xyz, 1.0f); // this is a placeholder. It does not correctly set the position 
-    // gl_Position = vec4(1.0,2.0,3.0,1.0);
+    textureCoordinate = txtCoords;
+    gl_Position = MVP * vec4(position.xyz, 1.0f);
 }
