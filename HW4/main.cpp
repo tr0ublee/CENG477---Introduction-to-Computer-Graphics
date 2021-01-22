@@ -46,7 +46,7 @@ typedef struct vertexData {
 } Vertex;
 
 std::vector<Vertex> vertices;
-std::vector<int> indices;
+std::vector<unsigned int> indices;
 
 static void errorCallback(int error, const char* description)
 {
@@ -68,18 +68,27 @@ void createMapData() {
       vertices.push_back(pushed);
     }
   }
+  /*  x    x+1
+      v0---v2
+       | / | 
+      v1---v3
+      x+w  x+w+1
+  */
   for (int i = 0 ; i <= textureHeight; i++) {
     for (int j  = 0 ; j <= textureWidth; j++) {
-      int x = i * j;
-      indices.push_back(x);
-      indices.push_back(x + textureWidth);
-      indices.push_back(x + 1);
-      indices.push_back(x + 1);
-      indices.push_back(x + textureWidth);
-      indices.push_back(x + textureWidth + 1);
+      int x = textureWidth * j + i ;
+      int v0 = x;
+      int v1 = x + textureWidth;
+      int v2 = x + 1;
+      int v3 = x + textureWidth + 1;
+      indices.push_back(v0);
+      indices.push_back(v1);
+      indices.push_back(v2);
+      indices.push_back(v2);
+      indices.push_back(v1);
+      indices.push_back(v3);
     }
   }
-  
 }
 
 void initBuffers() {
