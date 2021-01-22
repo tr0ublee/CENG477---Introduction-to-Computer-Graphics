@@ -76,9 +76,9 @@ void createMapData() {
       v1---v3
       x+w  x+w+1
   */
-  for (int i = 0 ; i <= textureHeight; i++) {
-    for (int j  = 2 ; j <= textureWidth; j++) {
-      int x = textureWidth * j + i ;
+  for (int i = 0 ; i < textureHeight; i++) {
+    for (int j  = 0 ; j < textureWidth; j++) {
+      int x = textureWidth * i + j;
       int v0 = x;
       int v1 = x + textureWidth;
       int v2 = x + 1;
