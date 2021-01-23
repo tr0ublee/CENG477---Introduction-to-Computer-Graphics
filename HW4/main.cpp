@@ -64,9 +64,9 @@ void createMapData() {
   for (int i = 0; i <= textureHeight; i++) {
     for (int j = 0; j <= textureWidth; j++) {
       Vertex pushed;
-      pushed.pos = glm::vec3(j,0.0,i);
-      pushed.normal = glm::vec3(0.0,1.0,0.0);
-      pushed.textureCoords = glm::vec2(1.0 - j*(1.0/textureWidth), 1.0 - i * (1.0/textureHeight));
+      pushed.pos = glm::vec3(j, 0.0, i);
+      pushed.normal = glm::vec3(0.0);
+      pushed.textureCoords = glm::vec2(1.0 - (j*1.0/textureWidth), 1.0 - (i * 1.0/textureHeight));
       vertices.push_back(pushed);
     }
   }
@@ -132,9 +132,9 @@ void initLight() {
 
 void accessUniformVars() {
   int wHandle = glGetUniformLocation(idProgramShader, "widthTexture");
-  glUniform1f(wHandle, textureWidth);
+  glUniform1i(wHandle, textureWidth);
   int hHandle = glGetUniformLocation(idProgramShader, "heightTexture");
-  glUniform1f(hHandle, textureHeight);
+  glUniform1i(hHandle, textureHeight);
   int mvpHandle = glGetUniformLocation(idProgramShader, "MVP");
   glUniformMatrix4fv(mvpHandle, 1, GL_FALSE, glm::value_ptr(MVP));
   int camPosHandle = glGetUniformLocation(idProgramShader, "cameraPosition");
@@ -145,7 +145,8 @@ void accessUniformVars() {
   glUniform1f(heightFactorHandle, heightFactor);
   int rgbHandle = glGetUniformLocation(idProgramShader, "rgbTexture");
   glUniform1i(rgbHandle, 0);
-
+  int heightHandle = glGetUniformLocation(idProgramShader, "heightTextureData");
+  glUniform1i(heightHandle, 1);
 }
 
 

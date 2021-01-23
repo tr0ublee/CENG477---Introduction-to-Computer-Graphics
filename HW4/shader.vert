@@ -11,7 +11,8 @@ uniform vec4 cameraPosition;
 uniform float heightFactor;
 
 // Texture-related data
-uniform sampler2D rgbTexture;
+// uniform sampler2D rgbTexture;
+uniform sampler2D heightTextureData; //????
 uniform int widthTexture;
 uniform int heightTexture;
 
@@ -25,21 +26,81 @@ out vec3 ToCameraVector; // Vector from Vertex to Camera;
 // Our added data 
 uniform vec3 lightPos;
 
+float getHeight(vec2 textCoords) {
+    vec4 heightVec = texture(heightTextureData, textCoords); //get RGBA from the texture
+    return heightVec.r * heightFactor; // use the red channel
+}
 
+float getNeighborHeight(vec3 pos) {
+    float u = 1.0 - (pos.x * 1.0f / widthTexture);
+    float v = 1.0 - (pos.z * 1.0f / heightTexture);
+    vec2 uv = vec2(u,v);
+    return getHeight(uv);
+}
+/*
+____v1__v2
+| / |0/1|
+v0--p---v3
+|1/0|+/ |
+v5--v4---
+*/
+vec3 getNormal(vec3 p) {
+    // (v1-v0) x (v2-v0)
+    vec3 v0,v1,v2,v3,v4,v5;
+    v0 = v1 = v2 = v3 = v4 = v5 = vec3(0.0,0.0,0.0);
+    int count = 0;
+    float d = 1.0f;
+    //if (position.x - 1 >= 0){
+        v0 = vec3(p.x - d   , getNeighborHeight(vec3(p.x- d,    p.y,    p.z  ))   , p.z);
+        count++;
+    //}
+    //if (position.z - 1 >= 0){
+        v1 = vec3(p.x       ,   getNeighborHeight(vec3(p.x  ,   p.y,    p.z-d))   , p.z- d);
+        count++;
+    //}
+    //if (position.x + 1 <= widthTexture && position.z -1 >= 0) {
+        v2 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d,     p.y,    p.z-d))    , p.z-d);
+        count++;
+    //}
+    //if (position.x + 1 <= widthTexture) {
+        v3 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d,     p.y,    p.z  ))     , p.z);
+        count++;
+    
+    //}
+    // if (position.z + 1 <= heightTexture) {
+        v4 = vec3(p.x       ,   getNeighborHeight(vec3(p.x,     p.y,    p.z+d))   , p.z+d);
+        count++;
+    
+    // }
+    // if (position.x - 1 >= 0 && position.z + 1 <= heightTexture) {
+        v5 = vec3(p.x-d     , getNeighborHeight(vec3(p.x-d,     p.y,    p.z+d))     , p.z+d);
+        count++;
+    
+    // }
+    vec3 triangleNW = (cross(v1-p, v0-p));
+    vec3 triangleNE0 = (cross(v2-p, v1-p));
+    vec3 triangleNE1 = (cross(v3-p, v2-p));
+    vec3 triangleSW0 = (cross(v5-p, v4-p));
+    vec3 triangleSW1 = (cross(v0-p, v5-p));
+    vec3 triangleSE = (cross(v4-p, v3-p));
+    vec3 output = triangleNW + triangleNE0 + triangleNE1 + triangleSW0 + triangleSW1 + triangleSE;
+    return normalize(output/count);
+}
 
 
 void main()
 {
-
     // get texture value, compute height
     // compute normal vector using also the heights of neighbor vertices
 
     // compute toLight vector vertex coordinate in VCS
-    vertexNormal = normalize(normal);
+    // vertexNormal = normalize(normal);
     // set gl_Position variable correctly to give the transformed vertex position
     // gl_Position = vec4(0,0,0,0); // this is a placeholder. It does not correctly set the position 
-    ToCameraVector = normalize(cameraPosition.xyz - position);
-    ToLightVector = normalize(lightPos - position);
+    vec3 posCopy = vec3(position.x, getHeight(txtCoords), position.z);
+    vertexNormal = getNormal(posCopy);
+    ToCameraVector = normalize(cameraPosition.xyz - posCopy);
+    ToLightVector = normalize(lightPos - posCopy);
     textureCoordinate = txtCoords;
-    gl_Position = MVP * vec4(position.xyz, 1.0f);
+    gl_Position = MVP * vec4(posCopy, 1.0f);
 }
