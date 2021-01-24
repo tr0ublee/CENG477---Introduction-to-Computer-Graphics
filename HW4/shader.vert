@@ -62,7 +62,7 @@ vec3 getNormal(vec3 p) {
     vec3 triangleSW0 = cross(v5-p, v4-p);
     vec3 triangleSW1 = cross(v0-p, v5-p);
     vec3 triangleSE = cross(v4-p, v3-p);
-    vec3 result = (triangleNW + triangleNE0 + triangleNE1 + triangleSW0 + triangleSW1 + triangleSE) / 6.0;
+    vec3 result = triangleNW + triangleNE0 + triangleNE1 + triangleSW0 + triangleSW1 + triangleSE;
     return normalize(result);
 }
 

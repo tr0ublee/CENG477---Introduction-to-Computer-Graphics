@@ -57,15 +57,19 @@ float yaw = 90.0f;
 glm::vec3 gaze;
 glm::vec3 up;
 glm::mat4 viewMatrix;
-
 typedef struct vertexData {
   glm::vec3 pos;
   glm::vec2 textureCoords;
 } Vertex;
-
 std::vector<Vertex> vertices;
 std::vector<unsigned int> indices;
-
+// ISR flags
+bool R, F, Q, E, T, G, W, S, A, D, Y, H, X, I, P;
+void initLight();
+void initCamMVP();
+void initBools() {
+  R = F = Q = E = T = G = W = S = A = D = Y = H = X = I = P = false;
+}
 static void errorCallback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
@@ -77,80 +81,112 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
       // DONE
       glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
-    if (key == GLFW_KEY_R && action == GLFW_REPEAT) {
-      if (action == GLFW_REPEAT)
-      // increase height factor
-      // DONE
-      heightFactor += HEIGHT_DELTA;
-    }
-    if (key == GLFW_KEY_F && action == GLFW_REPEAT) {
-      // decrease height factor
-      // DONE
-      heightFactor -= HEIGHT_DELTA;
-    }
-    if (key == GLFW_KEY_Q && action == GLFW_REPEAT) {
-      // move texture left
-      // DONE
-      textureDelta -= TEXTURE_DELTA;
-    }
-    if (key == GLFW_KEY_E && action == GLFW_REPEAT) {
-      // move texture to right
-      // DONE
-      textureDelta += TEXTURE_DELTA;
-    }
-    if (key == GLFW_KEY_T && action == GLFW_REPEAT) {
-      // increase light height
-      // DONE
-      lightPos.y += LIGHT_POS_DELTA;
-    }
-    if (key == GLFW_KEY_G && action == GLFW_REPEAT) {
-      // decreate light height
-      // DONE
-      lightPos.y -= LIGHT_POS_DELTA;
-    }
-    if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
-      // change pitch
-      pitch += PITCH_DELTA;
-      if(pitch > 89.0f){
-        pitch =  89.0f;
+    if (key == GLFW_KEY_R) {
+      if (action == GLFW_PRESS) {
+        R = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        R = false;
       }
     }
-    if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
-      // change pitch
-      pitch -= PITCH_DELTA;
-      if(pitch < -89.0f) {
-        pitch = -89.0f;
+    if (key == GLFW_KEY_F) {
+      if (action == GLFW_PRESS) {
+        F = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        F = false;
       }
     }
-    if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
-      // change yaw
-      yaw -= YAW_DELTA;
-    }
-    if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
-      // change yaw
-      yaw += YAW_DELTA;
-    }
-    if (key == GLFW_KEY_Y && action == GLFW_REPEAT) {
-      // increase camera speed
-      speed += CAM_SPEED_DELTA;
-    }
-    if (key == GLFW_KEY_H && action == GLFW_REPEAT) {
-      // decrease camera speed
-      speed -= CAM_SPEED_DELTA;
-    }
+    if (key == GLFW_KEY_Q) {
+      if (action == GLFW_PRESS) {
+        Q = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        Q = false;
+      }
+    }    
+    if (key == GLFW_KEY_E) {
+      if (action == GLFW_PRESS) {
+        E = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        E = false;
+      }
+    }    
+    if (key == GLFW_KEY_T) {
+      if (action == GLFW_PRESS) {
+        T = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        T = false;
+      }
+    }  
+    if (key == GLFW_KEY_G) {
+      if (action == GLFW_PRESS) {
+        G = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        G = false;
+      }
+    }  
+    if (key == GLFW_KEY_W) {
+      if (action == GLFW_PRESS) {
+        W = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        W = false;
+      }
+    }  
+
+    if (key == GLFW_KEY_S) {
+      if (action == GLFW_PRESS) {
+        S = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        S = false;
+      }
+    }  
+
+    if (key == GLFW_KEY_A) {
+      if (action == GLFW_PRESS) {
+        A = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        A = false;
+      }
+    }  
+    if (key == GLFW_KEY_D) {
+      if (action == GLFW_PRESS) {
+        D = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        D = false;
+      }
+    }  
+    if (key == GLFW_KEY_Y) {
+      if (action == GLFW_PRESS) {
+        Y = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        Y = false;
+      }
+    }  
+    if (key == GLFW_KEY_H) {
+      if (action == GLFW_PRESS) {
+        H = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        H = false;
+      }
+    }  
     if (key == GLFW_KEY_X && action == GLFW_PRESS) {
-      // stop camera
-      speed = 0.0f;
+      X = true;
     }
     if (key == GLFW_KEY_I && action == GLFW_PRESS) {
-      // reset cemarea
-      speed = 0.0f;
-      pitch = 0.0f;
-      yaw = 0.0f;
-      camPos = glm::vec3(textureWidth/2.0, textureWidth/10.0, -textureWidth/4.0);
+      I = true;
     }
     if (key == GLFW_KEY_P && action == GLFW_PRESS) {
-      // IMPLEMENT FULL SCREEN 
+      P = !P;
     }
 }
 
@@ -256,6 +292,103 @@ void recalcCamMVP(){
     MVP = projectionMatrix * viewMatrix;// No modeling transformation.
 }
 
+void serveButtons() {
+    if (R) {
+      // DONE
+      // increase height factor
+      heightFactor += HEIGHT_DELTA;
+    }
+    if (F) {
+      // DONE
+      // decrease height factor
+      heightFactor -= HEIGHT_DELTA;
+    }
+    if (Q) {
+      // DONE
+      // move texture left
+      textureDelta -= TEXTURE_DELTA;
+    }
+    if (E) {
+      // DONE
+      // move texture to right
+      textureDelta += TEXTURE_DELTA;
+    }
+    if (T) {
+      // DONE
+      // increase light height
+      lightPos.y += LIGHT_POS_DELTA;
+    }
+    if (G) {
+      // DONE
+      // decreate light height
+      lightPos.y -= LIGHT_POS_DELTA;
+    }
+    if (W) {
+      // DONE
+      // change pitch
+      pitch += PITCH_DELTA;
+      if(pitch > 89.0f){
+        pitch =  89.0f;
+      }
+    }
+    if (S) {
+      // DONE
+      // change pitch
+      pitch -= PITCH_DELTA;
+      if(pitch < -89.0f) {
+        pitch = -89.0f;
+      }
+    }
+    if (A) {
+      // DONE
+      // change yaw
+      yaw -= YAW_DELTA;
+    }
+    if (D) {
+      // DONE
+      // change yaw
+      yaw += YAW_DELTA;
+    }
+    if (Y) {
+      // DONE
+      // increase camera speed
+      speed += CAM_SPEED_DELTA;
+    }
+    if (H) {
+      // DONE
+      // decrease camera speed
+      speed -= CAM_SPEED_DELTA;
+    }
+    if (X) {
+      X = false;
+      speed = 0.0f;
+    }
+    if (I) {
+      I = false;
+      speed = 0.0f;
+      pitch = 0.0f;
+      yaw = 90.0f;
+      textureDelta = 0;
+      heightFactor = 10.0f;
+      camPos = glm::vec3(textureWidth/2.0, textureWidth/10.0, -textureWidth/4.0);
+      initLight();
+      initCamMVP();
+    }
+    if (P) {
+      // fullscreen
+      GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+      const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+      glfwSetWindowMonitor(win, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+      glViewport(0,0, mode->width, mode->height);
+      
+    } else {
+      // go back to previos state
+      glfwSetWindowMonitor(win, NULL , 0, 0, widthWindow, heightWindow, 0);
+      glViewport(0,0, widthWindow, heightWindow);
+    }
+
+}
+
 int main(int argc, char *argv[]) {
 
   if (argc != 3) {
@@ -274,6 +407,7 @@ int main(int argc, char *argv[]) {
 
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE); // This is required for remote
   // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE); // This might be used for local
+  glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
   win = glfwCreateWindow(widthWindow, heightWindow, "CENG477 - HW4", NULL, NULL);
 
@@ -303,11 +437,12 @@ int main(int argc, char *argv[]) {
   initCamMVP();
   initLight();
   initBuffers();
+  initBools();
   accessUniformVars();
-
   glEnable(GL_DEPTH_TEST);
 
   while(!glfwWindowShouldClose(win)) {
+    serveButtons();
     recalcCamMVP();
     accessUniformVars();
     glClearColor(0,0,0,1);
