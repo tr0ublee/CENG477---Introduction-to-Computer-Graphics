@@ -1,10 +1,21 @@
 #include "helper.h"
-
 #include <vector>
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 #include "glm/gtc/type_ptr.hpp"
+
+#define HEIGHT_DELTA 0.5 // +R -F
+#define TEXTURE_DELTA 1 // -Q +E
+#define LIGHT_POS_DELTA 5 // +T -G 
+#define PITCH_DELTA 0.05 //W S
+#define YAW_DELTA  0.05 // A D 
+#define CAM_SPEED_DELTA  0.01 // Y H
+/*
+  I = Reset
+  p = full screen
+*/
+
 
 static GLFWwindow* win = NULL;
 int widthWindow = 1000, heightWindow = 1000;
@@ -38,11 +49,13 @@ glm::mat4 MVP;
 glm::vec3 camPos;
 GLfloat* normals;
 GLuint vaoHandle;
-
+int textureDelta = 0;
+float speed = 0.0f;
+float pitch = 0.0f;
+float yaw = 0.0f;
 
 typedef struct vertexData {
   glm::vec3 pos;
-  glm::vec3 normal;
   glm::vec2 textureCoords;
 } Vertex;
 
@@ -58,6 +71,71 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+    if (key == GLFW_KEY_R && action == GLFW_REPEAT) {
+      // increase height factor
+      heightFactor += HEIGHT_DELTA;
+    }
+    if (key == GLFW_KEY_F && action == GLFW_REPEAT) {
+      // decrease height factor
+      heightFactor -= HEIGHT_DELTA;
+    }
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+      // move texture left
+      textureDelta -= TEXTURE_DELTA;
+    }
+    if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+      // move texture to right
+      textureDelta += TEXTURE_DELTA;
+    }
+    if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+      // increase light height
+      lightPos.y += LIGHT_POS_DELTA;
+    }
+    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+      // decreate light height
+      lightPos.y -= LIGHT_POS_DELTA;
+    }
+    if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+      // change pitch
+      pitch += PITCH_DELTA;
+      
+    }
+    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+      // change pitch
+      pitch -= PITCH_DELTA;
+    }
+    if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+      // change yaw
+      yaw += YAW_DELTA;
+    }
+    if (key == GLFW_KEY_D && action == GLFW_PRESS) {
+      // change yaw
+      yaw -= YAW_DELTA;
+
+    }
+    if (key == GLFW_KEY_Y && action == GLFW_PRESS) {
+      // increase camera speed
+      speed += CAM_SPEED_DELTA;
+    }
+    if (key == GLFW_KEY_H && action == GLFW_PRESS) {
+      // decrease camera speed
+      speed -= CAM_SPEED_DELTA;
+
+    }
+    if (key == GLFW_KEY_X && action == GLFW_PRESS) {
+      // stop camera
+      speed = 0.0f;
+    }
+    if (key == GLFW_KEY_I && action == GLFW_PRESS) {
+      // reset cemarea
+      speed = 0.0f;
+      pitch = 0.0f;
+      yaw = 0.0f;
+      camPos = glm::vec3(textureWidth/2.0, textureWidth/10.0, -textureWidth/4.0);
+    }
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+      // IMPLEMENT FULL SCREEN 
+    }
 }
 
 void createMapData() {
@@ -65,8 +143,7 @@ void createMapData() {
     for (int j = 0; j <= textureWidth; j++) {
       Vertex pushed;
       pushed.pos = glm::vec3(j, 0.0, i);
-      pushed.normal = glm::vec3(0.0);
-      pushed.textureCoords = glm::vec2(1.0 - (j*1.0/textureWidth), 1.0 - (i * 1.0/textureHeight));
+      pushed.textureCoords = glm::vec2(1.0 - (((float)j)/textureWidth), 1.0 - (((float)i)/textureHeight));
       vertices.push_back(pushed);
     }
   }
@@ -106,12 +183,10 @@ void initBuffers() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idIndexBuffer);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), indices.data(), GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*) (0 + sizeof(glm::vec3)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),(void*) (0 + sizeof(glm::vec3)));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*) (0 + 2 * sizeof(glm::vec3)));
-  glEnableVertexAttribArray(2);
 }
 
 void initCamLightMVP() {
@@ -203,6 +278,7 @@ int main(int argc, char *argv[]) {
   glEnable(GL_DEPTH_TEST);
 
   while(!glfwWindowShouldClose(win)) {
+    accessUniformVars();
     glClearColor(0,0,0,1);
 	  glClearDepth(1.0);
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

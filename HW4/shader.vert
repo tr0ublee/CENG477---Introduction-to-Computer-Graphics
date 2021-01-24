@@ -1,8 +1,7 @@
 #version 410
 
 layout(location = 0) in vec3 position;
-layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 txtCoords;
+layout(location = 1) in vec2 txtCoords;
 
 // Data from CPU 
 uniform mat4 MVP; // ModelViewProjection Matrix
@@ -32,8 +31,8 @@ float getHeight(vec2 textCoords) {
 }
 
 float getNeighborHeight(vec3 pos) {
-    float u = 1.0 - (pos.x * 1.0f / widthTexture);
-    float v = 1.0 - (pos.z * 1.0f / heightTexture);
+    float u = 1.0 - (float(pos.x) / widthTexture);
+    float v = 1.0 - (float(pos.z) / heightTexture);
     vec2 uv = vec2(u,v);
     return getHeight(uv);
 }
@@ -84,7 +83,7 @@ vec3 getNormal(vec3 p) {
     vec3 triangleSW1 = (cross(v0-p, v5-p));
     vec3 triangleSE = (cross(v4-p, v3-p));
     vec3 output = triangleNW + triangleNE0 + triangleNE1 + triangleSW0 + triangleSW1 + triangleSE;
-    return normalize(output/count);
+    return normalize(output/float(count));
 }
 
 
