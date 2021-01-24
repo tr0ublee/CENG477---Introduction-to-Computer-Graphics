@@ -78,11 +78,12 @@ void createMapData() {
   */
   for (int i = 0 ; i < textureHeight; i++) {
     for (int j  = 0 ; j < textureWidth; j++) {
-      int x = textureWidth * i + j;
+      int width = textureWidth + 1;
+      int x = width * i + j;
       int v0 = x;
-      int v1 = x + textureWidth;
+      int v1 = x + width;
       int v2 = x + 1;
-      int v3 = x + textureWidth + 1;
+      int v3 = x + width + 1;
       indices.push_back(v0);
       indices.push_back(v1);
       indices.push_back(v2);
