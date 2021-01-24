@@ -39,9 +39,6 @@ void main() {
   // compute diffuse component
   float cosTheta = max(0.0f, dot(ToLightVector,vertexNormal));
   vec4 diffuse = kd * cosTheta * Id;
-  // if (vertexNormal.y > 0.99) {
-    // diffuse = vec4(1.0f,0.0f,0.0f,1.0f);
-  // }
   // vec4 diffuse = vec4(1.0f,1.0f,1.0f,1.0f);
   // compute specular component
   vec3 h = (ToLightVector + ToCameraVector);

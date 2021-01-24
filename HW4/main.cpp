@@ -50,9 +50,13 @@ glm::vec3 camPos;
 GLfloat* normals;
 GLuint vaoHandle;
 int textureDelta = 0;
+float angle = 45.0f;
 float speed = 0.0f;
 float pitch = 0.0f;
-float yaw = 0.0f;
+float yaw = 90.0f;
+glm::vec3 gaze;
+glm::vec3 up;
+glm::mat4 viewMatrix;
 
 typedef struct vertexData {
   glm::vec3 pos;
@@ -69,58 +73,70 @@ static void errorCallback(int error, const char* description)
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
+      // DONE
+      glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
     if (key == GLFW_KEY_R && action == GLFW_REPEAT) {
+      if (action == GLFW_REPEAT)
       // increase height factor
+      // DONE
       heightFactor += HEIGHT_DELTA;
     }
     if (key == GLFW_KEY_F && action == GLFW_REPEAT) {
       // decrease height factor
+      // DONE
       heightFactor -= HEIGHT_DELTA;
     }
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_Q && action == GLFW_REPEAT) {
       // move texture left
+      // DONE
       textureDelta -= TEXTURE_DELTA;
     }
-    if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_E && action == GLFW_REPEAT) {
       // move texture to right
+      // DONE
       textureDelta += TEXTURE_DELTA;
     }
-    if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_T && action == GLFW_REPEAT) {
       // increase light height
+      // DONE
       lightPos.y += LIGHT_POS_DELTA;
     }
-    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_G && action == GLFW_REPEAT) {
       // decreate light height
+      // DONE
       lightPos.y -= LIGHT_POS_DELTA;
     }
-    if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
       // change pitch
       pitch += PITCH_DELTA;
-      
+      if(pitch > 89.0f){
+        pitch =  89.0f;
+      }
     }
-    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
       // change pitch
       pitch -= PITCH_DELTA;
+      if(pitch < -89.0f) {
+        pitch = -89.0f;
+      }
     }
-    if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
+      // change yaw
+      yaw -= YAW_DELTA;
+    }
+    if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
       // change yaw
       yaw += YAW_DELTA;
     }
-    if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-      // change yaw
-      yaw -= YAW_DELTA;
-
-    }
-    if (key == GLFW_KEY_Y && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_Y && action == GLFW_REPEAT) {
       // increase camera speed
       speed += CAM_SPEED_DELTA;
     }
-    if (key == GLFW_KEY_H && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_H && action == GLFW_REPEAT) {
       // decrease camera speed
       speed -= CAM_SPEED_DELTA;
-
     }
     if (key == GLFW_KEY_X && action == GLFW_PRESS) {
       // stop camera
@@ -189,12 +205,11 @@ void initBuffers() {
   glEnableVertexAttribArray(1);
 }
 
-void initCamLightMVP() {
+void initCamMVP() {
   camPos = glm::vec3(textureWidth/2.0, textureWidth/10.0, -textureWidth/4.0); // given in the pdf
-  glm::vec3 gaze = glm::vec3(0.0, 0.0, 1.0); // -w
-  glm::vec3 up = glm::vec3(0.0, 1.0, 0.0); // up vector will be the y direction
-  glm::mat4 viewMatrix = glm::lookAt(camPos, camPos+gaze, up);
-  float angle = 45.0f;
+  gaze = glm::vec3(0.0, 0.0, 1.0); // -w
+  up = glm::vec3(0.0, 1.0, 0.0); // up vector will be the y direction
+  viewMatrix = glm::lookAt(camPos, camPos+gaze, up);
   float aspectRatio = 1.0f;
   float near = 0.1f;
   float far = 1000.0f;
@@ -223,8 +238,23 @@ void accessUniformVars() {
   glUniform1i(rgbHandle, 0);
   int heightHandle = glGetUniformLocation(idProgramShader, "heightTextureData");
   glUniform1i(heightHandle, 1);
+  int textureDeltaHandle = glGetUniformLocation(idProgramShader, "textureDelta");
+  glUniform1i(textureDeltaHandle, textureDelta);
 }
 
+void recalcCamMVP(){
+    gaze.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    gaze.y = sin(glm::radians(pitch));
+    gaze.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    gaze = glm::normalize((gaze));
+    viewMatrix = glm::lookAt(camPos, camPos+gaze, up);
+    camPos += speed * gaze;
+    float aspectRatio = 1.0f;
+    float near = 0.1f;
+    float far = 1000.0f;
+    glm::mat4 projectionMatrix = glm::perspective(angle, aspectRatio, near, far);
+    MVP = projectionMatrix * viewMatrix;// No modeling transformation.
+}
 
 int main(int argc, char *argv[]) {
 
@@ -270,7 +300,7 @@ int main(int argc, char *argv[]) {
   glfwSetKeyCallback(win, keyCallback);
 
   initTexture(argv[1], argv[2], &textureWidth, &textureHeight);
-  initCamLightMVP();
+  initCamMVP();
   initLight();
   initBuffers();
   accessUniformVars();
@@ -278,6 +308,7 @@ int main(int argc, char *argv[]) {
   glEnable(GL_DEPTH_TEST);
 
   while(!glfwWindowShouldClose(win)) {
+    recalcCamMVP();
     accessUniformVars();
     glClearColor(0,0,0,1);
 	  glClearDepth(1.0);
