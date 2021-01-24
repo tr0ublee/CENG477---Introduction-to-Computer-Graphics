@@ -63,6 +63,7 @@ typedef struct vertexData {
 } Vertex;
 std::vector<Vertex> vertices;
 std::vector<unsigned int> indices;
+
 // ISR flags
 bool R, F, Q, E, T, G, W, S, A, D, Y, H, X, I, P;
 void initLight();
@@ -407,7 +408,7 @@ int main(int argc, char *argv[]) {
 
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE); // This is required for remote
   // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE); // This might be used for local
-  glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+  glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // We added
 
   win = glfwCreateWindow(widthWindow, heightWindow, "CENG477 - HW4", NULL, NULL);
 
@@ -442,6 +443,8 @@ int main(int argc, char *argv[]) {
   glEnable(GL_DEPTH_TEST);
 
   while(!glfwWindowShouldClose(win)) {
+    glfwGetWindowSize(win, &widthWindow, &heightWindow); // We added
+    glViewport(0, 0, widthWindow, heightWindow); // We added
     serveButtons();
     recalcCamMVP();
     accessUniformVars();
