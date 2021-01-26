@@ -46,6 +46,7 @@ bool lightPosFlag = false;
 // Our own data starts from now on.
 // place things that can change to global cuz it is ez
 glm::mat4 MVP; 
+glm::mat4 MV; 
 glm::vec3 camPos;
 GLfloat* normals;
 GLuint vaoHandle;
@@ -252,6 +253,7 @@ void initCamMVP() {
   float far = 1000.0f;
   glm::mat4 projectionMatrix = glm::perspective(angle, aspectRatio, near, far);
   MVP = projectionMatrix * viewMatrix;// No modeling transformation.
+  MV = viewMatrix;
 }
 
 void initLight() {
@@ -265,7 +267,11 @@ void accessUniformVars() {
   glUniform1i(hHandle, textureHeight);
   int mvpHandle = glGetUniformLocation(idProgramShader, "MVP");
   glUniformMatrix4fv(mvpHandle, 1, GL_FALSE, glm::value_ptr(MVP));
+  int mvHandle = glGetUniformLocation(idProgramShader, "MV");
+  glUniformMatrix4fv(mvHandle, 1, GL_FALSE, glm::value_ptr(MV));
   int camPosHandle = glGetUniformLocation(idProgramShader, "cameraPosition");
+  std::cout<<camPos[0] << " " << camPos[1] << " " << camPos[2]<<std::endl;
+
   glUniform3fv(camPosHandle, 1, glm::value_ptr(camPos));
   int lightPosHandle = glGetUniformLocation(idProgramShader, "lightPos");
   glUniform3fv(lightPosHandle, 1, glm::value_ptr(lightPos));
@@ -277,6 +283,7 @@ void accessUniformVars() {
   glUniform1i(heightHandle, 1);
   int textureDeltaHandle = glGetUniformLocation(idProgramShader, "textureDelta");
   glUniform1i(textureDeltaHandle, textureDelta);
+
 }
 
 void recalcCamMVP(){
@@ -455,8 +462,6 @@ int main(int argc, char *argv[]) {
     glfwSwapBuffers(win);
     glfwPollEvents();
   }
-
-
   glfwDestroyWindow(win);
   glfwTerminate();
   return 0;

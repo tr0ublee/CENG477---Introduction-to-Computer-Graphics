@@ -6,7 +6,7 @@ layout(location = 1) in vec2 txtCoords;
 // Data from CPU 
 uniform mat4 MVP; // ModelViewProjection Matrix
 uniform mat4 MV; // ModelView idMVPMatrix
-uniform vec4 cameraPosition;
+uniform vec3 cameraPosition;
 uniform float heightFactor;
 
 // Texture-related data
@@ -51,11 +51,11 @@ vec3 getNormal(vec3 p) {
     v0 = v1 = v2 = v3 = v4 = v5 = vec3(0.0,0.0,0.0);
     float d = 1.0f;
     v0 = vec3(p.x - d   , getNeighborHeight(vec3(p.x- d,    p.y,    p.z  ))   , p.z);
-    v1 = vec3(p.x       ,   getNeighborHeight(vec3(p.x  ,   p.y,    p.z-d))   , p.z- d);
-    v2 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d,     p.y,    p.z-d))    , p.z-d);
-    v3 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d,     p.y,    p.z  ))     , p.z);
-    v4 = vec3(p.x       ,   getNeighborHeight(vec3(p.x,     p.y,    p.z+d))   , p.z+d);
-    v5 = vec3(p.x-d     , getNeighborHeight(vec3(p.x-d,     p.y,    p.z+d))     , p.z+d);
+    v1 = vec3(p.x       , getNeighborHeight(vec3(p.x   ,    p.y,    p.z-d))   , p.z- d);
+    v2 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d ,    p.y,    p.z-d))   , p.z-d);
+    v3 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d ,    p.y,    p.z  ))   , p.z);
+    v4 = vec3(p.x       , getNeighborHeight(vec3(p.x   ,    p.y,    p.z+d))   , p.z+d);
+    v5 = vec3(p.x-d     , getNeighborHeight(vec3(p.x-d ,    p.y,    p.z+d))   , p.z+d);
     vec3 triangleNW = cross(v1-p, v0-p);
     vec3 triangleNE0 = cross(v2-p, v1-p);
     vec3 triangleNE1 = cross(v3-p, v2-p);
@@ -78,9 +78,10 @@ void main()
     // gl_Position = vec4(0,0,0,0); // this is a placeholder. It does not correctly set the position 
     textureCoordinate = txtCoords;
     textureCoordinate.x += float(textureDelta)/widthTexture;
+    mat4 invTMp = transpose(inverse(MV));
     vec3 posCopy = vec3(position.x, getHeight(textureCoordinate), position.z);
-    vertexNormal = getNormal(posCopy);
-    ToCameraVector = normalize(cameraPosition.xyz - posCopy);
-    ToLightVector = normalize(lightPos - posCopy);
+    vertexNormal =  vec3(invTMp * vec4(getNormal(posCopy),0.0f));
+    ToCameraVector = vec3(MV * vec4(normalize(cameraPosition.xyz - posCopy),0.0f));
+    ToLightVector = vec3(MV * vec4(normalize(lightPos - posCopy),0.0f));
     gl_Position = MVP * vec4(posCopy, 1.0f);
 }
