@@ -77,6 +77,11 @@ static void errorCallback(int error, const char* description)
     fprintf(stderr, "Error: %s\n", description);
 }
 
+void resizeFunc(GLFWwindow* window, int width, int height) {
+    glfwGetWindowSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+}
+
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
@@ -189,6 +194,17 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     }
     if (key == GLFW_KEY_P && action == GLFW_PRESS) {
       P = !P;
+      if (P) {
+        // fullscreen
+        GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+        glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+        glViewport(0,0, mode->width, mode->height);
+      } else {
+        // go back to previos state
+        glfwSetWindowMonitor(window, NULL , 0, 0, widthWindow, heightWindow, 0);
+        glViewport(0,0, widthWindow, heightWindow);
+      }
     }
 }
 
@@ -267,11 +283,7 @@ void accessUniformVars() {
   glUniform1i(hHandle, textureHeight);
   int mvpHandle = glGetUniformLocation(idProgramShader, "MVP");
   glUniformMatrix4fv(mvpHandle, 1, GL_FALSE, glm::value_ptr(MVP));
-  int mvHandle = glGetUniformLocation(idProgramShader, "MV");
-  glUniformMatrix4fv(mvHandle, 1, GL_FALSE, glm::value_ptr(MV));
   int camPosHandle = glGetUniformLocation(idProgramShader, "cameraPosition");
-  std::cout<<camPos[0] << " " << camPos[1] << " " << camPos[2]<<std::endl;
-
   glUniform3fv(camPosHandle, 1, glm::value_ptr(camPos));
   int lightPosHandle = glGetUniformLocation(idProgramShader, "lightPos");
   glUniform3fv(lightPosHandle, 1, glm::value_ptr(lightPos));
@@ -382,19 +394,6 @@ void serveButtons() {
       initLight();
       initCamMVP();
     }
-    if (P) {
-      // fullscreen
-      GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-      const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-      glfwSetWindowMonitor(win, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
-      glViewport(0,0, mode->width, mode->height);
-      
-    } else {
-      // go back to previos state
-      glfwSetWindowMonitor(win, NULL , 0, 0, widthWindow, heightWindow, 0);
-      glViewport(0,0, widthWindow, heightWindow);
-    }
-
 }
 
 int main(int argc, char *argv[]) {
@@ -415,7 +414,7 @@ int main(int argc, char *argv[]) {
 
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE); // This is required for remote
   // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE); // This might be used for local
-  glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // We added
+  // glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // We added
 
   win = glfwCreateWindow(widthWindow, heightWindow, "CENG477 - HW4", NULL, NULL);
 
@@ -434,6 +433,8 @@ int main(int argc, char *argv[]) {
       exit(-1);
   }
 
+  glfwSetWindowSizeCallback(win, resizeFunc);
+
   std::string vertFile = "./shader.vert";
   std::string fragFile = "./shader.frag";
   initShaders(idProgramShader, vertFile, fragFile);
@@ -450,8 +451,6 @@ int main(int argc, char *argv[]) {
   glEnable(GL_DEPTH_TEST);
 
   while(!glfwWindowShouldClose(win)) {
-    glfwGetWindowSize(win, &widthWindow, &heightWindow); // We added
-    glViewport(0, 0, widthWindow, heightWindow); // We added
     serveButtons();
     recalcCamMVP();
     accessUniformVars();

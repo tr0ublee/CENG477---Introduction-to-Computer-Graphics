@@ -78,10 +78,9 @@ void main()
     // gl_Position = vec4(0,0,0,0); // this is a placeholder. It does not correctly set the position 
     textureCoordinate = txtCoords;
     textureCoordinate.x += float(textureDelta)/widthTexture;
-    mat4 invTMp = transpose(inverse(MV));
     vec3 posCopy = vec3(position.x, getHeight(textureCoordinate), position.z);
-    vertexNormal =  vec3(invTMp * vec4(getNormal(posCopy),0.0f));
-    ToCameraVector = vec3(MV * vec4(normalize(cameraPosition.xyz - posCopy),0.0f));
-    ToLightVector = vec3(MV * vec4(normalize(lightPos - posCopy),0.0f));
+    vertexNormal =  getNormal(posCopy);
+    ToCameraVector = normalize(cameraPosition.xyz - posCopy);
+    ToLightVector = normalize(lightPos - posCopy);
     gl_Position = MVP * vec4(posCopy, 1.0f);
 }
