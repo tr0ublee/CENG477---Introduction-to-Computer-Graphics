@@ -66,11 +66,11 @@ std::vector<Vertex> vertices;
 std::vector<unsigned int> indices;
 
 // ISR flags
-bool R, F, Q, E, T, G, W, S, A, D, Y, H, X, I, P;
+bool R, F, Q, E, T, G, W, S, A, D, Y, H, X, I, P, UP, DOWN, LEFT, RIGHT;;
 void initLight();
 void initCamMVP();
 void initBools() {
-  R = F = Q = E = T = G = W = S = A = D = Y = H = X = I = P = false;
+  R = F = Q = E = T = G = W = S = A = D = Y = H = X = I = P = UP = DOWN = LEFT = RIGHT = false;
 }
 static void errorCallback(int error, const char* description)
 {
@@ -120,6 +120,38 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         E = false;
       }
     }    
+    if (key == GLFW_KEY_UP) {
+      if (action == GLFW_PRESS) {
+        UP = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        UP = false;
+      }
+    }  
+    if (key == GLFW_KEY_DOWN) {
+      if (action == GLFW_PRESS) {
+        DOWN = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        DOWN = false;
+      }
+    }  
+    if (key == GLFW_KEY_LEFT) {
+      if (action == GLFW_PRESS) {
+        LEFT = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        LEFT = false;
+      }
+    }  
+    if (key == GLFW_KEY_RIGHT) {
+      if (action == GLFW_PRESS) {
+        RIGHT = true;
+      } 
+      if (action == GLFW_RELEASE) {
+        RIGHT = false;
+      }
+    }  
     if (key == GLFW_KEY_T) {
       if (action == GLFW_PRESS) {
         T = true;
@@ -332,6 +364,26 @@ void serveButtons() {
       // DONE
       // move texture to right
       textureDelta += TEXTURE_DELTA;
+    }
+    if (UP) {
+      // DONE
+      // increase light height
+      lightPos.z += LIGHT_POS_DELTA;
+    }
+    if (DOWN) {
+      // DONE
+      // increase light height
+      lightPos.z -= LIGHT_POS_DELTA;
+    }
+    if (LEFT) {
+      // DONE
+      // increase light height
+      lightPos.x += LIGHT_POS_DELTA;
+    }
+    if (RIGHT) {
+      // DONE
+      // increase light height
+      lightPos.x -= LIGHT_POS_DELTA;
     }
     if (T) {
       // DONE
