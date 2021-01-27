@@ -1,11 +1,11 @@
-#version 410
+#version 330
 
 // Output Color
 out vec4 color;
 
 uniform mat4 MVP; // ModelViewProjection Matrix
 uniform mat4 MV; // ModelView idMVPMatrix
-uniform vec4 cameraPosition;
+uniform vec3 cameraPosition;
 
 // Texture-related data;
 uniform sampler2D rgbTexture;

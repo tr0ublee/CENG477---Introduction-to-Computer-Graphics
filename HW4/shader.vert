@@ -1,4 +1,4 @@
-#version 410
+#version 330
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 txtCoords;
@@ -6,7 +6,7 @@ layout(location = 1) in vec2 txtCoords;
 // Data from CPU 
 uniform mat4 MVP; // ModelViewProjection Matrix
 uniform mat4 MV; // ModelView idMVPMatrix
-uniform vec4 cameraPosition;
+uniform vec3 cameraPosition;
 uniform float heightFactor;
 
 // Texture-related data

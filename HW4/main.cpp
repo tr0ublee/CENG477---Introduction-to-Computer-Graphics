@@ -65,11 +65,11 @@ std::vector<Vertex> vertices;
 std::vector<unsigned int> indices;
 
 // ISR flags
-bool R, F, Q, E, T, G, W, S, A, D, Y, H, X, I, P;
+bool R, F, Q, E, T, G, W, S, A, D, Y, H, X, I, P, P2;
 void initLight();
 void initCamMVP();
 void initBools() {
-  R = F = Q = E = T = G = W = S = A = D = Y = H = X = I = P = false;
+  R = F = Q = E = T = G = W = S = A = D = Y = H = X = I = P = P2 = false;
 }
 static void errorCallback(int error, const char* description)
 {
@@ -188,7 +188,13 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     }
     if (key == GLFW_KEY_P && action == GLFW_PRESS) {
       P = !P;
+      P2 = !P;
     }
+}
+
+void resizeFunc(GLFWwindow* window, int width, int height) {
+    glfwGetWindowSize(window, &width, &height);
+    glViewport(0, 0, width, height);
 }
 
 void createMapData() {
@@ -382,10 +388,12 @@ void serveButtons() {
       glfwSetWindowMonitor(win, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
       glViewport(0,0, mode->width, mode->height);
       
-    } else {
+    } 
+    if (P2) {
       // go back to previos state
       glfwSetWindowMonitor(win, NULL , 0, 0, widthWindow, heightWindow, 0);
       glViewport(0,0, widthWindow, heightWindow);
+      P2 = !P2;
     }
 
 }
@@ -408,7 +416,6 @@ int main(int argc, char *argv[]) {
 
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE); // This is required for remote
   // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE); // This might be used for local
-  glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // We added
 
   win = glfwCreateWindow(widthWindow, heightWindow, "CENG477 - HW4", NULL, NULL);
 
@@ -432,6 +439,7 @@ int main(int argc, char *argv[]) {
   initShaders(idProgramShader, vertFile, fragFile);
   glUseProgram(idProgramShader);
 
+  glfwSetWindowSizeCallback(win, resizeFunc);
   glfwSetKeyCallback(win, keyCallback);
 
   initTexture(argv[1], argv[2], &textureWidth, &textureHeight);
@@ -443,8 +451,6 @@ int main(int argc, char *argv[]) {
   glEnable(GL_DEPTH_TEST);
 
   while(!glfwWindowShouldClose(win)) {
-    glfwGetWindowSize(win, &widthWindow, &heightWindow); // We added
-    glViewport(0, 0, widthWindow, heightWindow); // We added
     serveButtons();
     recalcCamMVP();
     accessUniformVars();
