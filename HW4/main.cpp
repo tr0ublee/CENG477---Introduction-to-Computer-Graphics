@@ -206,6 +206,7 @@ void createMapData() {
       vertices.push_back(pushed);
     }
   }
+  
   /*  x    x+1
       v0---v2
        | / | 
@@ -454,14 +455,15 @@ int main(int argc, char *argv[]) {
     serveButtons();
     recalcCamMVP();
     accessUniformVars();
+
     glClearColor(0,0,0,1);
 	  glClearDepth(1.0);
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glfwSwapBuffers(win);
     glfwPollEvents();
   }
-
 
   glfwDestroyWindow(win);
   glfwTerminate();

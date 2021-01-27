@@ -5,7 +5,6 @@ layout(location = 1) in vec2 txtCoords;
 
 // Data from CPU 
 uniform mat4 MVP; // ModelViewProjection Matrix
-uniform mat4 MV; // ModelView idMVPMatrix
 uniform vec3 cameraPosition;
 uniform float heightFactor;
 
@@ -38,6 +37,7 @@ float getNeighborHeight(vec3 pos) {
     vec2 uv = vec2(u,v);
     return getHeight(uv);
 }
+
 /*
 ____v1__v2
 | / |0/1|
@@ -50,12 +50,12 @@ vec3 getNormal(vec3 p) {
     vec3 v0,v1,v2,v3,v4,v5;
     v0 = v1 = v2 = v3 = v4 = v5 = vec3(0.0,0.0,0.0);
     float d = 1.0f;
-    v0 = vec3(p.x - d   , getNeighborHeight(vec3(p.x- d,    p.y,    p.z  ))   , p.z);
-    v1 = vec3(p.x       ,   getNeighborHeight(vec3(p.x  ,   p.y,    p.z-d))   , p.z- d);
-    v2 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d,     p.y,    p.z-d))    , p.z-d);
-    v3 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d,     p.y,    p.z  ))     , p.z);
-    v4 = vec3(p.x       ,   getNeighborHeight(vec3(p.x,     p.y,    p.z+d))   , p.z+d);
-    v5 = vec3(p.x-d     , getNeighborHeight(vec3(p.x-d,     p.y,    p.z+d))     , p.z+d);
+    v0 = vec3(p.x - d   , getNeighborHeight(vec3(p.x- d,     p.y,    p.z  ))   , p.z  );
+    v1 = vec3(p.x       , getNeighborHeight(vec3(p.x   ,     p.y,    p.z-d))   , p.z-d);
+    v2 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d ,     p.y,    p.z-d))   , p.z-d);
+    v3 = vec3(p.x+d     , getNeighborHeight(vec3(p.x+d ,     p.y,    p.z  ))   , p.z  );
+    v4 = vec3(p.x       , getNeighborHeight(vec3(p.x   ,     p.y,    p.z+d))   , p.z+d);
+    v5 = vec3(p.x-d     , getNeighborHeight(vec3(p.x-d ,     p.y,    p.z+d))   , p.z+d);
     vec3 triangleNW = cross(v1-p, v0-p);
     vec3 triangleNE0 = cross(v2-p, v1-p);
     vec3 triangleNE1 = cross(v3-p, v2-p);
@@ -71,11 +71,8 @@ void main()
 {
     // get texture value, compute height
     // compute normal vector using also the heights of neighbor vertices
-
     // compute toLight vector vertex coordinate in VCS
-    // vertexNormal = normalize(normal);
     // set gl_Position variable correctly to give the transformed vertex position
-    // gl_Position = vec4(0,0,0,0); // this is a placeholder. It does not correctly set the position 
     textureCoordinate = txtCoords;
     textureCoordinate.x += float(textureDelta)/widthTexture;
     vec3 posCopy = vec3(position.x, getHeight(textureCoordinate), position.z);
