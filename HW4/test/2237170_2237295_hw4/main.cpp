@@ -399,17 +399,17 @@ void serveButtons() {
       // DONE
       // change pitch
       pitch += PITCH_DELTA;
-      // if(pitch > 89.0f){
-        // pitch =  89.0f;
-      // }
+      if(pitch > 89.0f){
+        pitch =  89.0f;
+      }
     }
     if (S) {
       // DONE
       // change pitch
       pitch -= PITCH_DELTA;
-      // if(pitch < -89.0f) {
-        // pitch = -89.0f;
-      // }
+      if(pitch < -89.0f) {
+        pitch = -89.0f;
+      }
     }
     if (A) {
       // DONE
